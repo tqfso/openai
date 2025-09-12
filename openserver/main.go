@@ -34,12 +34,17 @@ func main() {
 	// HTTP服务
 
 	r := gin.New()
-	r.Use(middleware.GinLogger(), middleware.GinRecovery())
+	r.Use(middleware.HttpAccessLogger(), middleware.HttpHandlerRecovery())
 
 	// 分组路由
+	SetRoute(r)
 
 	// 未找到路由
 	r.NoRoute(rest.NewNotFoundHandler())
 
 	r.Run(config.GetServer().ListenAddress())
+}
+
+func SetRoute(r *gin.Engine) {
+
 }

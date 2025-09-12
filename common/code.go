@@ -8,6 +8,7 @@ const (
 	RequestParamError int = 4 // 请求参数错误
 	HandleError       int = 5 // 处理请求异常
 	HandlerNotFound   int = 6 // 未找到处理器
+	AuthError         int = 7 // 认证失败
 
 )
 

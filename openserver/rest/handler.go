@@ -18,19 +18,12 @@ type TaskInterface interface {
 	Handle()
 }
 
-type Response struct {
-	Data any    `json:"data,inline,omitempty"`
-	Code int    `json:"code"`
-	Msg  string `json:"msg,omitempty"`
-}
-
 type Handler[T any] struct {
-	Task       TaskInterface // 任务处理接口
-	Context    *gin.Context  // HTTP上下文
-	Request    T             // 请求体
-	Response   Response      // 响应体
-	StatusCode int           // 响应状态字
-	FromUser   string        // 用户ID
+	Task       TaskInterface   // 任务处理接口
+	Context    *gin.Context    // HTTP上下文
+	Request    T               // 请求体
+	Response   common.Response // 响应体
+	StatusCode int             // 响应状态字
 }
 
 func (h *Handler[T]) OnRequest(context *gin.Context) {
@@ -39,20 +32,11 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 	h.StatusCode = http.StatusOK
 	h.Response.Code = common.Success
 
-	// 解析请求体
-
-	if h.hasJsonBody() {
-		if err := context.ShouldBindBodyWithJSON(&h.Request); err != nil {
-			h.SetError(common.RequestDataError, err.Error())
-			h.SendResponse()
-			return
-		}
-	} else if h.hasQueryParams() {
-		if err := context.ShouldBindQuery(&h.Request); err != nil {
-			h.SetError(common.RequestParamError, err.Error())
-			h.SendResponse()
-			return
-		}
+	// 解析请求数据
+	if err := context.ShouldBind(&h.Request); err != nil {
+		h.SetError(common.RequestDataError, err.Error())
+		h.SendResponse()
+		return
 	}
 
 	// 处理请求
@@ -82,6 +66,11 @@ func (h *Handler[T]) SetStatusCode(statusCode int) {
 	h.StatusCode = statusCode
 }
 
+func (h *Handler[T]) GetFromUser() string {
+	return h.Context.GetString("fromUser")
+}
+
+//lint:ignore U1000 Ignore unused function
 func (h *Handler[T]) hasJsonBody() bool {
 	request := h.Context.Request
 	if request.Body == nil || request.Body == http.NoBody {
@@ -92,6 +81,7 @@ func (h *Handler[T]) hasJsonBody() bool {
 	return strings.HasPrefix(strings.ToLower(contentType), "application/json")
 }
 
+//lint:ignore U1000 Ignore unused function
 func (h *Handler[T]) hasQueryParams() bool {
 	return len(h.Context.Request.URL.Query()) > 0
 }
@@ -109,5 +99,9 @@ func (h *Handler[T]) checkPanic() {
 		return
 	}
 
-	h.SetError(common.HandleError, err.Error())
+	if commError, ok := e.(*common.Error); ok {
+		h.SetError(commError.Code, commError.Msg)
+	} else {
+		h.SetError(common.HandleError, err.Error())
+	}
 }
