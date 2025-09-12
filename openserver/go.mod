@@ -1,4 +1,4 @@
-module gitlab.rightchaintech.com/openai/openserver
+module openserver
 
 go 1.22.2
 

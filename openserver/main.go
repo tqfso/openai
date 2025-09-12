@@ -1,28 +1,41 @@
 package main
 
 import (
+	"flag"
 	"net/http"
 	"runtime/debug"
 	"time"
 
+	"openserver/config"
+	"openserver/logger"
+
 	"github.com/gin-gonic/gin"
-	"gitlab.rightchaintech.com/openai/openserver/logger"
 )
 
 func main() {
 
-	logger.Init("info", "logs/app.log")
+	// 解析参数
+	cfgfile := flag.String("config", "config/config.yaml", "config from file")
+	logfile := flag.String("logs", "logs/app.log", "log to file")
+	flag.Parse()
 
-	logger.Info("Application started")	
-
+	// 初始化日志
 	defer logger.Sync()
-
-	// GIN日志使用自定义logger
+	logger.Init("info", *logfile)
+	logger.Info("Application started")
 	gin.DefaultWriter = logger.GinWriter()
+
+	// 初始化配置
+	if err := config.Load(*cfgfile); err != nil {
+		logger.Error(err.Error())
+		return
+	}
+
+	// 启动HTTP服务
 
 	r := gin.New()
 	r.Use(GinLogger(), GinRecovery())
-	r.Run(":8080")
+	r.Run(config.GetServer().ListenAddress())
 }
 
 func GinLogger() gin.HandlerFunc {
