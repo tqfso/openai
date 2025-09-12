@@ -6,8 +6,8 @@ import (
 	"openserver/config"
 	"openserver/logger"
 
-	"openserver/rest"
 	"openserver/middleware"
+	"openserver/rest"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,7 +23,7 @@ func main() {
 	defer logger.Sync()
 	logger.Init("info", *logfile)
 	logger.Info("Application started")
-	gin.DefaultWriter = logger.GinWriter()
+	gin.DefaultWriter = logger.GetWriter()
 
 	// 初始化配置
 	if err := config.Load(*cfgfile); err != nil {

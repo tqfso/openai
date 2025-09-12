@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-// GinWriter returns an io.Writer that redirects Gin's logs to zap logger.
-// Usage: gin.DefaultWriter = logger.GinWriter()
-func GinWriter() io.Writer {
+// GetWriter returns an io.Writer that redirects Gin's logs to zap logger.
+// Usage: gin.DefaultWriter = logger.GetWriter()
+func GetWriter() io.Writer {
 
 	reader, writer := io.Pipe()
 
