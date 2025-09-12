@@ -23,9 +23,9 @@ func GinWriter() io.Writer {
 			}
 
 			if strings.Contains(text, "[GIN-debug]") {
-				logger.Debug("GIN Debug", String("msg", text))
+				logger.Debug(text)
 			} else {
-				logger.Info("GIN Log", String("msg", text))
+				logger.Info(text)
 			}
 		}
 	}()

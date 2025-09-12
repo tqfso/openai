@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
-	"net/http"
-	"runtime/debug"
-	"time"
 
 	"openserver/config"
 	"openserver/logger"
+
+	"openserver/rest"
+	"openserver/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,49 +31,15 @@ func main() {
 		return
 	}
 
-	// 启动HTTP服务
+	// HTTP服务
 
 	r := gin.New()
-	r.Use(GinLogger(), GinRecovery())
+	r.Use(middleware.GinLogger(), middleware.GinRecovery())
+
+	// 分组路由
+
+	// 未找到路由
+	r.NoRoute(rest.NewNotFoundHandler())
+
 	r.Run(config.GetServer().ListenAddress())
-}
-
-func GinLogger() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		start := time.Now()
-
-		c.Next() // 处理请求
-
-		latency := time.Since(start)
-		clientIP := c.ClientIP()
-		method := c.Request.Method
-		statusCode := c.Writer.Status()
-		path := c.Request.URL.Path
-
-		logger.Info("HTTP Access",
-			logger.String("clientIP", clientIP),
-			logger.String("method", method),
-			logger.Int("status", statusCode),
-			logger.String("path", path),
-			logger.Int64("latency_ms", latency.Milliseconds()),
-			logger.String("userAgent", c.Request.UserAgent()),
-		)
-	}
-}
-
-func GinRecovery() gin.HandlerFunc {
-	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
-		logger.Error("Panic recovered",
-			logger.Any("error", recovered),
-			logger.String("clientIP", c.ClientIP()),
-			logger.String("method", c.Request.Method),
-			logger.String("path", c.Request.URL.Path),
-			logger.String("stack", string(debug.Stack())), // 记录堆栈
-		)
-
-		// 返回友好错误
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Internal Server Error",
-		})
-	})
 }

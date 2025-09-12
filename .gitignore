@@ -1,5 +1,5 @@
 *.sum
 /.vs
-/out
+out
 logs
 
