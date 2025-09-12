@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func HttpHandlerRecovery() gin.HandlerFunc {
+func HttpRecovery() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		logger.Error("Panic recovered",
 			logger.Any("error", recovered),

@@ -34,7 +34,7 @@ func main() {
 	// HTTP服务
 
 	r := gin.New()
-	r.Use(middleware.HttpAccessLogger(), middleware.HttpHandlerRecovery())
+	r.Use(middleware.HttpLogger(), middleware.HttpRecovery())
 
 	// 分组路由
 	SetRoute(r)

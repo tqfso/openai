@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func HttpAccessLogger() gin.HandlerFunc {
+func HttpLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
