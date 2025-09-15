@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"openserver/config"
+	"openserver/logger"
 	"openserver/middleware/auth"
 	"time"
 
@@ -58,10 +59,14 @@ func do(method, endpoint string, param, data, resp any) error {
 		if err != nil {
 			return err
 		}
-		url = fmt.Sprintf("https://%s/zresource/v1/%s?%s", zdan.Address(), endpoint, v.Encode())
+		url = fmt.Sprintf("https://%s/zresource/v1%s?%s", zdan.Address(), endpoint, v.Encode())
 	} else {
-		url = fmt.Sprintf("https://%s/zresource/v1/%s", zdan.Address(), endpoint)
+		url = fmt.Sprintf("https://%s/zresource/v1%s", zdan.Address(), endpoint)
 	}
+
+	logger.Debug("Access Resource Service",
+		logger.String("method", "GET"),
+		logger.String("url", url))
 
 	// 构建请求体
 
@@ -99,7 +104,7 @@ func do(method, endpoint string, param, data, resp any) error {
 	// 获取返回状态字
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("response status code: %d", response.StatusCode)
+		return fmt.Errorf("resource status code: %d", response.StatusCode)
 	}
 
 	// 解析响应体
@@ -113,13 +118,17 @@ func do(method, endpoint string, param, data, resp any) error {
 		return fmt.Errorf("response body empty")
 	}
 
-	var resourceResp Response
-	if err := json.Unmarshal(body, &resourceResp); err != nil {
+	var standResp Response
+	if err := json.Unmarshal(body, &standResp); err != nil {
 		return err
 	}
 
-	if resourceResp.Data != nil && resp != nil {
-		if err := json.Unmarshal(resourceResp.Data, resp); err != nil {
+	if !standResp.IsSuccess() {
+		return fmt.Errorf("resource error code: [%d]%s", standResp.Code, standResp.Msg)
+	}
+
+	if standResp.Data != nil && resp != nil {
+		if err := json.Unmarshal(standResp.Data, resp); err != nil {
 			return err
 		}
 	}

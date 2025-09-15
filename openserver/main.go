@@ -5,6 +5,7 @@ import (
 
 	"openserver/config"
 	"openserver/logger"
+	"openserver/rest/test"
 
 	"openserver/middleware"
 	"openserver/rest"
@@ -21,7 +22,7 @@ func main() {
 
 	// 初始化日志
 	defer logger.Sync()
-	logger.Init("info", *logfile)
+	logger.Init("debug", *logfile)
 	logger.Info("Application started")
 	gin.DefaultWriter = logger.GetWriter()
 
@@ -47,4 +48,7 @@ func main() {
 
 func SetRoute(r *gin.Engine) {
 
+	v1 := r.Group("/v1")
+
+	v1.GET("/test", test.NewTestHandler())
 }

@@ -41,7 +41,7 @@ func (c *ZdanConfig) Check() error {
 		c.ZdanHost = host
 	}
 
-	if len(port) > 0 {
+	if len(port) > 0 && port != "443" && port != "80" {
 		c.ZdanPort = port
 	}
 
