@@ -14,12 +14,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TokenClient byte
-
 const (
-	ClientH5    TokenClient = 1 // H5
-	ClientThird TokenClient = 2 // 第三方
-	ClientCloud TokenClient = 3 // 零极云
+	ClientH5    byte = 1 // H5
+	ClientThird byte = 2 // 第三方
+	ClientCloud byte = 3 // 零极云
 )
 
 const (
@@ -27,22 +25,29 @@ const (
 	RefreshToken byte = 2
 )
 
-type ZDanToken struct {
-	Version     byte        // 版本
-	Type        byte        // 类型
-	DmappId     string      // 应用ID
-	UserId      string      // 用户ID
-	Client      TokenClient // 客户端
-	ExpiredTime int64       // 过期时间
-	Sign        []byte      // 签名
+type ZCloudToken struct {
+	Version     byte   // 版本
+	Client      byte   // 客户端
+	Type        byte   // 类型
+	ExpiredTime int64  // 过期时间
+	DmappId     []byte // 应用ID
+	Sign        []byte // 签名
 }
 
-func (t ZDanToken) IsExpired() bool {
+func (t ZCloudToken) Check() error {
 	expiredTime := time.Unix(t.ExpiredTime, 0)
-	return time.Now().After(expiredTime)
+	if time.Now().Before(expiredTime) {
+		return fmt.Errorf("token is expired")
+	}
+
+	if t.Client != ClientCloud {
+		return fmt.Errorf("token is not for cloud")
+	}
+
+	return nil
 }
 
-func (t *ZDanToken) Decode(token string) error {
+func (t *ZCloudToken) Decode(token string) error {
 
 	tokenBin := base58.Decode(token)
 	if len(tokenBin) == 0 {
@@ -57,14 +62,13 @@ func (t *ZDanToken) Decode(token string) error {
 	t.Version = tokenBin[offset]
 	offset += 1
 
-	t.Client = TokenClient(tokenBin[offset])
+	t.Client = tokenBin[offset]
 	offset += 1
 
 	t.Type = tokenBin[offset]
 	offset += 1
 
-	dmappIDBytes := tokenBin[offset : offset+20]
-	t.DmappId = hex.EncodeToString(dmappIDBytes)
+	t.DmappId = tokenBin[offset : offset+20]
 	offset += 20
 
 	expireStrEnd := offset + 10
@@ -73,24 +77,11 @@ func (t *ZDanToken) Decode(token string) error {
 	offset = expireStrEnd
 
 	if len(tokenBin[offset:]) != sha256.Size {
-		return fmt.Errorf("signature length invalid, expected %d, got %d", sha256.Size, len(tokenBin[offset:]))
+		return fmt.Errorf("sign length invalid, expected %d, got %d", sha256.Size, len(tokenBin[offset:]))
 	}
 	t.Sign = tokenBin[offset : offset+sha256.Size]
 
 	return nil
-}
-
-func ZDanAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		token := c.GetHeader("ZCookie")
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: "ZCookie required"})
-			c.Abort()
-			return
-		}
-
-		c.Next()
-	}
 }
 
 // 签名
@@ -99,8 +90,8 @@ func ZDanSign(data, key string) [sha256.Size]byte {
 	return sha256.Sum256([]byte(data))
 }
 
-// 生成Token
-func ZDanMakeToken(dmappHexId, appKey string) (token string, err error) {
+// 生成零极云Token
+func ZCloudMakeToken(dmappHexId, appKey string) (token string, err error) {
 
 	dmappId, err := hex.DecodeString(dmappHexId)
 	if err != nil {
@@ -133,16 +124,16 @@ func ZDanMakeToken(dmappHexId, appKey string) (token string, err error) {
 	return
 }
 
-// 验证TOKEN
-func ZDanVerifyToken(token, appKey string) (*ZDanToken, error) {
+// 验证零极云TOKEN
+func ZCloudVerifyToken(token, appKey string) (*ZCloudToken, error) {
 
-	data := &ZDanToken{}
+	data := &ZCloudToken{}
 	if err := data.Decode(token); err != nil {
 		return nil, err
 	}
 
-	if data.IsExpired() {
-		return nil, fmt.Errorf("token is expired")
+	if err := data.Check(); err != nil {
+		return nil, err
 	}
 
 	signData := fmt.Sprintf("%d&%d&%d&%d",
@@ -158,4 +149,17 @@ func ZDanVerifyToken(token, appKey string) (*ZDanToken, error) {
 	}
 
 	return data, nil
+}
+
+func ZCloudAuthHander() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("ZCookie")
+		if token == "" {
+			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: "ZCookie required"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
 }

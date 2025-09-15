@@ -13,17 +13,27 @@ var (
 
 type Config struct {
 	Server ServerConfig `yaml:"server"`
+	Zdan   ZdanConfig   `yaml:"zdan"`
 }
 
 func (c Config) Check() error {
 	if err := c.Server.Check(); err != nil {
 		return err
 	}
+
+	if err := c.Zdan.Check(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func GetServer() *ServerConfig {
 	return &config.Server
+}
+
+func GetZdan() *ZdanConfig {
+	return &config.Zdan
 }
 
 func Load(filename string) error {

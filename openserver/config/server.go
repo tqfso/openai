@@ -4,9 +4,8 @@ import "fmt"
 
 // ServerConfig contains server-related configuration
 type ServerConfig struct {
-	Port    int    `yaml:"port"`
-	Host    string `yaml:"host"`
-	Timeout int    `yaml:"timeout"`
+	Port int    `yaml:"port"`
+	Host string `yaml:"host"`
 }
 
 func (c ServerConfig) Check() error {
