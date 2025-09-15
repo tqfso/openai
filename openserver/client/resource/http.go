@@ -58,9 +58,9 @@ func do(method, endpoint string, param, data, resp any) error {
 		if err != nil {
 			return err
 		}
-		url = fmt.Sprintf("https://%s:%s/zresource/v1/%s?%s", zdan.ZdanHost, zdan.ZdanPort, endpoint, v.Encode())
+		url = fmt.Sprintf("https://%s/zresource/v1/%s?%s", zdan.Address(), endpoint, v.Encode())
 	} else {
-		url = fmt.Sprintf("https://%s:%s/zresource/v1/%s", zdan.ZdanHost, zdan.ZdanPort, endpoint)
+		url = fmt.Sprintf("https://%s/zresource/v1/%s", zdan.Address(), endpoint)
 	}
 
 	// 构建请求体

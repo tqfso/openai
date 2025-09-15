@@ -3,8 +3,10 @@ server:
   host: "0.0.0.0" # Server listening address
 
 zdan:
-  cloudDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # ZDAN cloud dmapp
-  cloudDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # ZDAN cloud app key
-  userDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # ZDAN user dmapp
-  userDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # ZDAN user app key
+  zdanHost: "testzcloud.zdan.cloud" # 分布式节点地址
+  zdanPort: 443 # 分布式节点端口
+  cloudDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # 零极云应用ID
+  cloudDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # 零极云应用应用密钥
+  userDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # ZDAN应用ID
+  userDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # ZDAN应用密钥
 

@@ -47,3 +47,12 @@ func (c *ZdanConfig) Check() error {
 
 	return nil
 }
+
+func (c ZdanConfig) Address() string {
+	if len(c.ZdanPort) > 0 {
+		return fmt.Sprintf("%s:%s", c.ZdanHost, c.ZdanPort)
+	}
+
+	return c.ZdanHost
+
+}
