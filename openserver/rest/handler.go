@@ -66,6 +66,10 @@ func (h *Handler[T]) SetStatusCode(statusCode int) {
 	h.StatusCode = statusCode
 }
 
+func (h *Handler[T]) SetResponseData(data any) {
+	h.Response.Data = data
+}
+
 func (h *Handler[T]) GetFromUser() string {
 	return h.Context.GetString("fromUser")
 }

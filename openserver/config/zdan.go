@@ -1,15 +1,20 @@
 package config
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type ZdanConfig struct {
 	CloudDmappId  string `yaml:"cloudDmappId"`
 	CloudDmappKey string `yaml:"cloudDmappKey"`
 	UserDmappId   string `yaml:"userDmappId"`
 	UserDmappKey  string `yaml:"userDmappKey"`
+	ZdanHost      string `yaml:"zdanHost"`
+	ZdanPort      string `yaml:"zdanPort"`
 }
 
-func (c ZdanConfig) Check() error {
+func (c *ZdanConfig) Check() error {
 
 	if len(c.CloudDmappId) == 0 {
 		return fmt.Errorf("invalid cloud dmapp id")
@@ -25,6 +30,19 @@ func (c ZdanConfig) Check() error {
 
 	if len(c.UserDmappKey) == 0 {
 		return fmt.Errorf("invalid user dmapp key")
+	}
+
+	// 通过算力调度部署，使用环境变量覆盖
+
+	host := os.Getenv("ZDAN_API_ADDRESS")
+	port := os.Getenv("ZDAN_API_PORT")
+
+	if len(host) > 0 {
+		c.ZdanHost = host
+	}
+
+	if len(port) > 0 {
+		c.ZdanPort = port
 	}
 
 	return nil

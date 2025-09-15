@@ -8,7 +8,7 @@ type ServerConfig struct {
 	Host string `yaml:"host"`
 }
 
-func (c ServerConfig) Check() error {
+func (c *ServerConfig) Check() error {
 	if c.Port <= 0 || c.Port > 65535 {
 		return fmt.Errorf("invalid server port: %d", c.Port)
 	}
