@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TestHandler struct {
+type Test1Handler struct {
 	rest.Handler[resource.StatusRequest]
 }
 
-func (h *TestHandler) Handle() {
+func (h *Test1Handler) Handle() {
 
 	resp := resource.StatusResponse{}
 	if err := resource.Get("/service/status", h.Request, &resp); err != nil {
@@ -23,8 +23,8 @@ func (h *TestHandler) Handle() {
 	h.SetResponseData(resp)
 }
 
-func NewTestHandler() gin.HandlerFunc {
-	h := &TestHandler{}
+func NewTest1Handler() gin.HandlerFunc {
+	h := &Test1Handler{}
 	h.SetTaskHandler(h)
 	return h.OnRequest
 }

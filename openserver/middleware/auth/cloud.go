@@ -4,9 +4,11 @@ import (
 	"common"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"openserver/config"
 	"strconv"
 	"time"
 
@@ -36,7 +38,7 @@ type ZCloudToken struct {
 
 func (t ZCloudToken) Check() error {
 	expiredTime := time.Unix(t.ExpiredTime, 0)
-	if time.Now().Before(expiredTime) {
+	if expiredTime.Before(time.Now()) {
 		return fmt.Errorf("token is expired")
 	}
 
@@ -74,20 +76,17 @@ func (t *ZCloudToken) Decode(token string) error {
 	expireStrEnd := offset + 10
 	expireStr := string(tokenBin[offset:expireStrEnd])
 	t.ExpiredTime, _ = strconv.ParseInt(expireStr, 10, 64)
-	offset = expireStrEnd
-
-	if len(tokenBin[offset:]) != sha256.Size {
-		return fmt.Errorf("sign length invalid, expected %d, got %d", sha256.Size, len(tokenBin[offset:]))
-	}
-	t.Sign = tokenBin[offset : offset+sha256.Size]
+	t.Sign = tokenBin[expireStrEnd:]
 
 	return nil
 }
 
 // 签名
-func ZDanSign(data, key string) [sha256.Size]byte {
-	data = data + key
-	return sha256.Sum256([]byte(data))
+func ZDanSign(data, key string) []byte {
+	key64, _ := base64.StdEncoding.DecodeString(key)
+	value := append([]byte(data), key64...)
+	sign := sha256.Sum256([]byte(value))
+	return append(sign[:], 1)
 }
 
 // 生成零极云Token
@@ -114,11 +113,11 @@ func ZCloudMakeToken(dmappHexId, appKey string) (token string, err error) {
 
 	var tokenBin []byte
 	tokenBin = append(tokenBin, 1)                    // 版本
-	tokenBin = append(tokenBin, byte(ClientCloud))    // 类型
+	tokenBin = append(tokenBin, ClientCloud)          // 类型
 	tokenBin = append(tokenBin, 1)                    // 1普通token, 2刷新token
 	tokenBin = append(tokenBin, dmappId[:]...)        // DMAPP ID
 	tokenBin = append(tokenBin, []byte(strExpire)...) // 过期时间
-	tokenBin = append(tokenBin, sign[:]...)           // 签名
+	tokenBin = append(tokenBin, sign...)              // 签名
 	token = base58.Encode(tokenBin)
 
 	return
@@ -144,7 +143,7 @@ func ZCloudVerifyToken(token, appKey string) (*ZCloudToken, error) {
 	)
 
 	sign := ZDanSign(signData, appKey)
-	if !hmac.Equal(data.Sign, sign[:]) {
+	if !hmac.Equal(data.Sign, sign) {
 		return nil, fmt.Errorf("signature verification failed")
 	}
 
@@ -153,9 +152,18 @@ func ZCloudVerifyToken(token, appKey string) (*ZCloudToken, error) {
 
 func ZCloudAuthHander() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("ZCookie")
-		if token == "" {
+		cookie := c.GetHeader("ZCookie")
+		if cookie == "" {
 			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: "ZCookie required"})
+			c.Abort()
+			return
+		}
+
+		zdan := config.GetZdan()
+
+		_, err := ZCloudVerifyToken(cookie, zdan.CloudDmappKey)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: err.Error()})
 			c.Abort()
 			return
 		}

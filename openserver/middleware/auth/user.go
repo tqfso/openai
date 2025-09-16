@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"openserver/config"
 	"strconv"
 	"time"
 
@@ -40,7 +41,7 @@ func (t ZUserToken) GetNodeId() string {
 
 func (t ZUserToken) Check() error {
 	expiredTime := time.Unix(t.ExpiredTime, 0)
-	if time.Now().Before(expiredTime) {
+	if expiredTime.Before(time.Now()) {
 		return fmt.Errorf("token is expired")
 	}
 
@@ -69,12 +70,7 @@ func (t *ZUserToken) Decode(token string) error {
 	t.DmappId = tokenBin[36:56]
 	expiredTime := tokenBin[56:66]
 	t.ExpiredTime, _ = strconv.ParseInt(string(expiredTime), 10, 64)
-
 	t.Sign = tokenBin[66:]
-
-	if len(t.Sign) != sha256.Size {
-		return fmt.Errorf("sign length invalid, expected %d, got %d", sha256.Size, len(t.Sign))
-	}
 
 	return nil
 }
@@ -99,7 +95,7 @@ func ZUserVerifyToken(token, appKey string) (*ZUserToken, error) {
 	)
 
 	sign := ZDanSign(signData, appKey)
-	if !hmac.Equal(data.Sign, sign[:]) {
+	if !hmac.Equal(data.Sign, sign) {
 		return nil, fmt.Errorf("signature verification failed")
 	}
 
@@ -108,12 +104,23 @@ func ZUserVerifyToken(token, appKey string) (*ZUserToken, error) {
 
 func ZUserAuthHander() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("ZCookie")
-		if token == "" {
+		cookie := c.GetHeader("ZCookie")
+		if cookie == "" {
 			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: "ZCookie required"})
 			c.Abort()
 			return
 		}
+
+		zdan := config.GetZdan()
+
+		token, err := ZUserVerifyToken(cookie, zdan.CloudDmappKey)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: err.Error()})
+			c.Abort()
+			return
+		}
+
+		c.Set("fromUser", token.UserId())
 
 		c.Next()
 	}

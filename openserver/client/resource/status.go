@@ -17,7 +17,7 @@ type StatusResponse struct {
 }
 
 type StatusRequest struct {
-	Key string `form:"key" url:"key"`
+	Key string `form:"key"`
 }
 
 type EnvVar struct {

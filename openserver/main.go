@@ -5,6 +5,7 @@ import (
 
 	"openserver/config"
 	"openserver/logger"
+	"openserver/middleware/auth"
 	"openserver/rest/test"
 
 	"openserver/middleware"
@@ -47,8 +48,10 @@ func main() {
 }
 
 func SetRoute(r *gin.Engine) {
+	SetTestRoute(r)
+}
 
-	v1 := r.Group("/v1")
-
-	v1.GET("/test", test.NewTestHandler())
+func SetTestRoute(r *gin.Engine) {
+	t := r.Group("/v1/test")
+	t.GET("/1", auth.ZCloudAuthHander(), test.NewTest1Handler())
 }

@@ -2,6 +2,8 @@ package resource
 
 import (
 	"bytes"
+	"common"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,7 +13,7 @@ import (
 	"openserver/middleware/auth"
 	"time"
 
-	"github.com/google/go-querystring/query"
+	"github.com/go-playground/form"
 )
 
 type Response struct {
@@ -32,30 +34,23 @@ func Post(endpoint string, data, resp any) error {
 	return do("POST", endpoint, nil, data, resp)
 }
 
-/*
-Example:
-
-	type Params struct {
-	    Page int `url:"page"`
-	    Size int `url:"size"`
-	}
-
-p := Params{Page: 1, Size: 10}
-*/
-
 func do(method, endpoint string, param, data, resp any) error {
 
 	zdan := config.GetZdan()
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
 
 	// 构建请求参数
 
 	var url string
 	if param != nil {
-		v, err := query.Values(param)
+		encoder := form.NewEncoder()
+		v, err := encoder.Encode(param)
 		if err != nil {
 			return err
 		}
@@ -64,9 +59,7 @@ func do(method, endpoint string, param, data, resp any) error {
 		url = fmt.Sprintf("https://%s/zresource/v1%s", zdan.Address(), endpoint)
 	}
 
-	logger.Debug("Access Resource Service",
-		logger.String("method", "GET"),
-		logger.String("url", url))
+	logger.Debug("Resource Access", logger.String("method", method), logger.String("url", url))
 
 	// 构建请求体
 
@@ -124,7 +117,7 @@ func do(method, endpoint string, param, data, resp any) error {
 	}
 
 	if !standResp.IsSuccess() {
-		return fmt.Errorf("resource error code: [%d]%s", standResp.Code, standResp.Msg)
+		return &common.Error{Code: standResp.Code, Msg: standResp.Msg}
 	}
 
 	if standResp.Data != nil && resp != nil {
