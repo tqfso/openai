@@ -1,6 +1,5 @@
 
 /* 网关表 */
-
 DROP TABLE IF EXISTS api_gateways;
 CREATE TABLE api_gateways (
     id BIGSERIAL PRIMARY KEY,
@@ -17,7 +16,6 @@ CREATE TABLE api_gateways (
 );
 
 /* 预置模型表*/
-
 DROP TABLE IF EXISTS platform_models;
 CREATE TABLE platform_models (
     id BIGSERIAL PRIMARY KEY,
@@ -26,22 +24,20 @@ CREATE TABLE platform_models (
     provider TEXT, -- 深度求索、通义实验室等
     languages TEXT[], -- 支持语言 ['zh', 'en']
     classes TEXT[] NOT NULL, -- 文本生成/图片生成/语音识别等
-    extended_ability TEXT[], -- 扩展能力如 function_calling
+    extended_ability TEXT[], -- 扩展能力如: [function_calling]
     gpu_supports TEXT[], -- 兼容显卡 ['T4','A100']
     support_finetune BOOLEAN DEFAULT FALSE,
     support_deploy BOOLEAN DEFAULT TRUE,
+    tool_call_parser TEXT, -- 工具调用解释器如: hermes
     quantization TEXT, -- 量化方式如: awq、gptq等
     format TEXT, -- 加载格式如: safetensors、pt等
     status SMALLINT DEFAULT 0, -- 状态
     description TEXT, -- 描述
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
-
 );
 
-
 /* 模型服务表 */
-
 DROP TABLE IF EXISTS model_services;
 CREATE TABLE model_services (
     id BIGSERIAL PRIMARY KEY,
@@ -60,7 +56,6 @@ CREATE TABLE model_services (
 );
 
 /* API密钥表 */
-
 DROP TABLE IF EXISTS api_keys;
 CREATE TABLE api_keys (
     id BIGSERIAL PRIMARY KEY,
@@ -75,9 +70,7 @@ CREATE TABLE api_keys (
 );
 
 /* 调用统计表 */
-
 DROP TABLE IF EXISTS usage_logs;
-
 CREATE TABLE usage_logs (
     id BIGSERIAL,
     key_hash TEXT NOT NULL, -- 调用密钥

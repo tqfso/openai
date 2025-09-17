@@ -30,3 +30,32 @@ psql -U postgres -- 以管理员账号进入命令交互
 
 ```
 
+## 模型
+
+### 下载
+
+```sh
+
+export MODELSCOPE_CACHE="/zol/models"
+
+modelscope download --model Qwen/Qwen2.5-VL-7B-Instruct-AWQ
+
+```
+
+### 部署
+
+```sh
+docker run --gpus all \
+  --shm-size=1g \
+  -p 8000:8000 \
+  -v /zol/models:/models \
+  -d --name qwen-vl-vllm \
+  vllm/vllm-openai:latest \
+  --model /models/Qwen2.5-VL-7B-Instruct-AWQ \
+  --dtype auto \
+  --quantization awq \
+  --device cuda \
+  --max-model-len 4096 \
+  --enable-auto-tool-call \
+  --tool-call-parser hermes
+```
