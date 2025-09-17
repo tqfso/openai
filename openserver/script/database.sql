@@ -76,12 +76,12 @@ CREATE TABLE api_keys (
 
 /* 调用统计表 */
 
-
 DROP TABLE IF EXISTS usage_logs;
 
 CREATE TABLE usage_logs (
     id BIGSERIAL,
     key_hash TEXT NOT NULL, -- 调用密钥
+    user_id TEXT NOT NULL, -- 用户ID
     service_id BIGINT NOT NULL REFERENCES model_services(id), -- 服务ID
     occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), -- 精确到毫秒
     status SMALLINT DEFAULT 0, -- 调用状态
