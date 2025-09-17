@@ -8,25 +8,25 @@
 
 ## 时序数据库
 
-### 部署“TimescaleDB”
+### 部署
 
 ```sh
 docker run -d --name timescaledb \
-  -p 11900:5432 \
-  -e POSTGRES_PASSWORD=123456 \
-  -v /zol/postgresql/data:/var/lib/postgresql/data \
-  timescale/timescaledb:latest-pg17
+        -p 11900:5432 \
+        -e POSTGRES_PASSWORD=123456 \
+        -v /zol/postgresql/data:/var/lib/postgresql/data \
+        timescale/timescaledb:latest-pg17
 ```
 
-### 创建数据库
+### 命令
 
 ```sh
-docker exec -it timescaledb psql -U postgres
 
-CREATE DATABASE openai_db;
+psql -U postgres -- 以管理员账号进入命令交互
 
-\c openai_db  -- 切换到新数据库
+[pg] CREATE DATABASE openai_db; -- 创建数据库
 
-CREATE EXTENSION IF NOT EXISTS timescaledb;
+[pg] \c openai_db  -- 切换到新数据库
 
 ```
+
