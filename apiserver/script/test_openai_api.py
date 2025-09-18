@@ -64,7 +64,8 @@ response = client.chat.completions.create(
     tools=tools,
     tool_choice="auto",
     max_tokens=256,
-    temperature=0.7,
+    temperature=0.2,
+    top_p=0.95,
 )
 
 # 5. 检查模型是否返回了工具调用请求
@@ -103,10 +104,22 @@ if hasattr(response_message, 'tool_calls') and response_message.tool_calls:
             model=model_name,
             messages=messages,
             max_tokens=256,
+            temperature=0.6,
+            top_p=0.95,
+            stream=True,
         )
+
+        # 实时打印每一段内容
+        final_answer = ""
+        for chunk in final_response:
+            delta = chunk.choices[0].delta
+            if delta.content:
+                print(delta.content, end='', flush=True)
+                final_answer += delta.content
         
-        final_answer = final_response.choices[0].message.content
-        print("模型最终回复:", final_answer)
+        # 非流式打印
+        # final_answer = final_response.choices[0].message.content
+        # print("模型最终回复:", final_answer)
         
     else:
         print("未知的工具调用:", tool_call.function.name)
