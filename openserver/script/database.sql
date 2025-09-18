@@ -20,17 +20,17 @@ DROP TABLE IF EXISTS platform_models;
 CREATE TABLE platform_models (
     id BIGSERIAL PRIMARY KEY,
     model_name TEXT UNIQUE NOT NULL, -- 如 Qwen/Qwen3-Reranker-8B
+	deploy_image TEXT NOT NULL, -- 推理镜像如: vllm/vllm-openai.latest
+	deploy_command TEXT[] NOT NULL, -- 运行命令
+	deploy_args TEXT[] NOT NULL, -- 运行参数	
+    gpu_supports TEXT[], -- 兼容显卡 ['nvidia/T4','nvidia/A100']
     context_length INT NOT NULL, -- 最大上下文长度
     provider TEXT, -- 深度求索、通义实验室等
     languages TEXT[], -- 支持语言 ['zh', 'en']
     classes TEXT[] NOT NULL, -- 文本生成/图片生成/语音识别等
-    extended_ability TEXT[], -- 扩展能力如: [function_calling]
-    gpu_supports TEXT[], -- 兼容显卡 ['T4','A100']
+    extended_ability TEXT[], -- 扩展能力如: ['function', 'reasoning']
     support_finetune BOOLEAN DEFAULT FALSE,
     support_deploy BOOLEAN DEFAULT TRUE,
-    tool_call_parser TEXT, -- 工具调用解释器如: hermes
-    quantization TEXT, -- 量化方式如: awq、gptq等
-    format TEXT, -- 加载格式如: safetensors、pt等
     status SMALLINT DEFAULT 0, -- 状态
     description TEXT, -- 描述
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -75,7 +75,7 @@ CREATE TABLE usage_logs (
     id BIGSERIAL,
     key_hash TEXT NOT NULL, -- 调用密钥
     user_id TEXT NOT NULL, -- 用户ID
-    service_id BIGINT NOT NULL REFERENCES model_services(id), -- 服务ID
+    service_id BIGINT NOT NULL, -- 服务ID
     occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), -- 精确到毫秒
     status SMALLINT DEFAULT 0, -- 调用状态
     input_tokens BIGINT DEFAULT 0, -- 输入token数量

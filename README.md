@@ -36,9 +36,13 @@ psql -U postgres -- 以管理员账号进入命令交互
 
 ```sh
 
-export MODELSCOPE_CACHE="/zol/models"
+export MODELSCOPE_CACHE="/zol"
 
-modelscope download --model Qwen/Qwen2.5-VL-7B-Instruct-AWQ
+modelscope download --model Qwen/Qwen3-1.7B
+
+cd /zol/models
+rm Qwen3-1.7B
+mv Qwen3-1___7B Qwen3-1.7B
 
 ```
 
@@ -49,13 +53,9 @@ docker run --gpus all \
   --shm-size=1g \
   -p 8000:8000 \
   -v /zol/models:/models \
-  -d --name qwen-vl-vllm \
+  -d --name qwen317 \
   vllm/vllm-openai:latest \
-  --model /models/Qwen2.5-VL-7B-Instruct-AWQ \
-  --dtype auto \
-  --quantization awq \
-  --device cuda \
-  --max-model-len 4096 \
-  --enable-auto-tool-call \
-  --tool-call-parser hermes
+  --model /models/Qwen/Qwen3-1.7B \
+  --enable-reasoning --reasoning-parser deepseek_r1
+
 ```
