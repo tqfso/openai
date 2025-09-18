@@ -4,7 +4,8 @@
 
 - common 共用包
 - openserver 开放平台服务
-- apiserver 网关服务
+- apiserver API网关服务
+- engine 推理服务
 
 ## 时序数据库
 
@@ -48,14 +49,9 @@ mv Qwen3-1___7B Qwen3-1.7B
 
 ### 部署
 
+- deploy using Tesla T4
+  
 ```sh
-docker run --gpus all \
-  --shm-size=1g \
-  -p 8000:8000 \
-  -v /zol/models:/models \
-  -d --name qwen317 \
-  vllm/vllm-openai:latest \
-  --model /models/Qwen/Qwen3-1.7B \
-  --enable-reasoning --reasoning-parser deepseek_r1
+docker run --gpus all --shm-size=1g -p 8000:8000 -v /zol/models:/models --name qwen3-1.7b vllm/vllm-openai:latest --model /models/Qwen/Qwen3-1.7B --enable-auto-tool-choice --tool-call-parser hermes --dtype float32 --trust-remote-code --max-model-len 2800 --gpu-memory-utilization 0.95
 
 ```
