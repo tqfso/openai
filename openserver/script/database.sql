@@ -25,7 +25,7 @@ CREATE TABLE platform_models (
     classes TEXT[] NOT NULL, -- 文本生成/图片生成/语音识别等
     extended_ability TEXT[], -- 扩展能力如: ['function', 'reasoning', 'batch']
     context_length BIGINT NOT NULL, -- 最大上下文长度
-	deploy_info JSONB, -- 部署信息包括：推理框架、推理镜像、运行命令、运行参数，可用加速卡等
+	deploy_info JSONB, -- 部署信息包括：推理镜像列表 => 运行命令、运行参数、可用加速卡等
     finetune_info JSONB, -- 微调训练信息
     status SMALLINT DEFAULT 0, -- 状态
     description TEXT, -- 描述
