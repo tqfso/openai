@@ -1,16 +1,15 @@
 import json
 from openai import OpenAI
 
-# 模型调用测试
-model_name = "/models/Qwen/Qwen3-1.7B"
+# 测试获取天气信息
 
-# 1. 配置客户端
+model_name = "Qwen/Qwen3-1.7B"
+
 client = OpenAI(
     base_url="http://172.21.21.98:8000/v1",
     api_key="EMPTY"
 )
 
-# 2. 定义工具 (Tools)
 tools = [
     {
         "type": "function",
@@ -31,7 +30,6 @@ tools = [
     }
 ]
 
-# 3. 模拟的天气查询函数 (实际应用中可以替换为真实的天气 API)
 def get_weather(city: str) -> str:
     """
     模拟获取天气信息的函数。
@@ -49,7 +47,6 @@ def get_weather(city: str) -> str:
     else:
         return json.dumps({"error": f"未找到城市 {city} 的天气数据"}, ensure_ascii=False)
 
-# 4. 构造消息并调用模型
 messages = [
     {"role": "system", "content": "你是一名气象助手"},
     {"role": "user", "content": "今天深圳的天气怎么样？"}
@@ -57,7 +54,6 @@ messages = [
 
 print("用户提问:", messages[1]["content"])
 
-# 第一次调用：让模型决定是否需要调用工具
 response = client.chat.completions.create(
     model=model_name,
     messages=messages,
@@ -68,7 +64,6 @@ response = client.chat.completions.create(
     top_p=0.95,
 )
 
-# 5. 检查模型是否返回了工具调用请求
 response_message = response.choices[0].message
 
 if hasattr(response_message, 'tool_calls') and response_message.tool_calls:
@@ -90,10 +85,10 @@ if hasattr(response_message, 'tool_calls') and response_message.tool_calls:
             tool_response = json.dumps({"error": f"调用工具时出错: {str(e)}"})
             print(f"工具调用出错: {tool_response}")
         
-        # 6. 将工具执行结果添加到消息历史，并再次调用模型生成最终回复
-        messages.append(response_message)  # 添加模型的响应（包含 tool_call）
+        # 将工具执行结果添加到消息历史，并再次调用模型生成最终回复
+        messages.append(response_message)
         messages.append({
-            "tool_call_id": tool_call.id,  # 必须与 tool_call.id 一致
+            "tool_call_id": tool_call.id,
             "role": "tool",
             "name": "get_weather",
             "content": tool_response,

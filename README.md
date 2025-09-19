@@ -35,6 +35,8 @@ psql -U postgres -- 以管理员账号进入命令交互
 
 ### 下载
 
+- downloade Qwen/Qwen3-1.7B from modescope
+
 ```sh
 
 export MODELSCOPE_CACHE="/zol"
@@ -49,9 +51,9 @@ mv Qwen3-1___7B Qwen3-1.7B
 
 ### 部署
 
-- deploy using Tesla T4
+- deploy Qwen/Qwen3-1.7B using Tesla T4
   
 ```sh
-docker run --gpus all --shm-size=1g -p 8000:8000 -v /zol/models:/models --name qwen3-1.7b vllm/vllm-openai:latest --model /models/Qwen/Qwen3-1.7B --enable-auto-tool-choice --tool-call-parser hermes --dtype float32 --trust-remote-code --max-model-len 2800 --gpu-memory-utilization 0.95
+docker run --gpus all --shm-size=1g -p 8000:8000 -v /zol/models:/vllm-workspace --name qwen3-1.7b vllm/vllm-openai:latest --model Qwen/Qwen3-1.7B --enable-auto-tool-choice --tool-call-parser hermes --dtype float32 --trust-remote-code --max-model-len 2800 --gpu-memory-utilization 0.95
 
 ```

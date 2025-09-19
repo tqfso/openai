@@ -19,18 +19,14 @@ CREATE TABLE api_gateways (
 DROP TABLE IF EXISTS platform_models;
 CREATE TABLE platform_models (
     id BIGSERIAL PRIMARY KEY,
-    model_name TEXT UNIQUE NOT NULL, -- 如 Qwen/Qwen3-Reranker-8B
-	deploy_image TEXT NOT NULL, -- 推理镜像如: vllm/vllm-openai.latest
-	deploy_command TEXT[] NOT NULL, -- 运行命令
-	deploy_args TEXT[] NOT NULL, -- 运行参数	
-    gpu_supports TEXT[], -- 兼容显卡 ['nvidia/T4','nvidia/A100']
-    context_length INT NOT NULL, -- 最大上下文长度
+    model_name TEXT UNIQUE NOT NULL, -- 模型名称如 Qwen/Qwen3-Reranker-8B
     provider TEXT, -- 深度求索、通义实验室等
     languages TEXT[], -- 支持语言 ['zh', 'en']
     classes TEXT[] NOT NULL, -- 文本生成/图片生成/语音识别等
-    extended_ability TEXT[], -- 扩展能力如: ['function', 'reasoning']
-    support_finetune BOOLEAN DEFAULT FALSE,
-    support_deploy BOOLEAN DEFAULT TRUE,
+    extended_ability TEXT[], -- 扩展能力如: ['function', 'reasoning', 'batch']
+    context_length BIGINT NOT NULL, -- 最大上下文长度
+	deploy_info JSONB, -- 部署信息包括：推理框架、推理镜像、运行命令、运行参数，可用加速卡等
+    finetune_info JSONB, -- 微调训练信息
     status SMALLINT DEFAULT 0, -- 状态
     description TEXT, -- 描述
     created_at TIMESTAMPTZ DEFAULT NOW(),
