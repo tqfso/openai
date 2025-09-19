@@ -1,12 +1,13 @@
 import json
 from openai import OpenAI
+from config import BASE_URL
 
 # 测试获取天气信息
 
 model_name = "Qwen/Qwen3-1.7B"
 
 client = OpenAI(
-    base_url="http://172.21.21.98:8000/v1",
+    base_url=BASE_URL,
     api_key="EMPTY"
 )
 
