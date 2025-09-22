@@ -1,5 +1,5 @@
 *.sum
-/.vs
+.vscode
 out
 logs
 __pycache__
