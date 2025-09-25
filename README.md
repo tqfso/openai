@@ -29,6 +29,8 @@ psql -U postgres -- 以管理员账号进入命令交互
 
 [pg] \c openai_db  -- 切换到新数据库
 
+[pg] CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 ```
 
 ## 模型
