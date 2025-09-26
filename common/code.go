@@ -11,6 +11,9 @@ const (
 	AuthError         int = 7 // 认证失败
 	InnerAccessError  int = 8 // 内部访问失败
 
+	UserExistError  int = 1000 // 用户已存在
+	CreateUserError int = 1001 // 创建用户失败
+
 )
 
 var messages = map[int]string{

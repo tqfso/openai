@@ -7,6 +7,13 @@ zdan:
   zdanPort: 10015 # 分布式节点访问端口
   cloudDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # 零极云应用ID
   cloudDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # 零极云应用应用密钥
-  userDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # ZDAN应用ID
-  userDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # ZDAN应用密钥
+  userDmappId: "2A5D8B89CB49D2AD0325F3E419FEC31F2D218EA2" # ZDAN应用ID
+  userDmappKey: "H5ahKWk20AAjEyma3b33Ir45z4AAed5dRZt6s2LrdCg=" # ZDAN应用密钥
 
+database:
+  host: "192.168.3.181" # Database host
+  port: 5432 # Database port
+  user: "postgres" # Database user
+  password: "123456" # Database password
+  dbname: "openai_db" # Database name
+  sslmode: "prefer" # Database SSL mode (disable, allow, prefer, require, verify-ca, verify-full)

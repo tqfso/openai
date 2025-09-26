@@ -6,9 +6,10 @@ import (
 	"openserver/config"
 	"openserver/logger"
 	"openserver/middleware/auth"
-	"openserver/rest/test"
+	"openserver/rest/user"
 
 	"openserver/middleware"
+	"openserver/repository"
 	"openserver/rest"
 
 	"github.com/gin-gonic/gin"
@@ -24,14 +25,22 @@ func main() {
 	// 初始化日志
 	defer logger.Sync()
 	logger.Init("debug", *logfile)
-	logger.Info("Application started")
+	logger.Info("Application started", logger.String("config file", *cfgfile))
 	gin.DefaultWriter = logger.GetWriter()
 
 	// 初始化配置
 	if err := config.Load(*cfgfile); err != nil {
-		logger.Error(err.Error())
+		logger.Error("failed to load config:", logger.Err(err))
 		return
 	}
+
+	// 初始化数据库
+	if err := repository.Init(); err != nil {
+		logger.Error("failed to connect to database:", logger.Err(err))
+		return
+	}
+
+	defer repository.Close()
 
 	// HTTP服务
 
@@ -48,10 +57,10 @@ func main() {
 }
 
 func SetRoute(r *gin.Engine) {
-	SetTestRoute(r)
+	SetUserRoute(r)
 }
 
-func SetTestRoute(r *gin.Engine) {
-	t := r.Group("/v1/test")
-	t.GET("/1", auth.ZCloudAuthHander(), test.NewTest1Handler())
+func SetUserRoute(r *gin.Engine) {
+	u := r.Group("/v1/user", auth.ZUserAuthHander())
+	u.POST("/create", user.NewCreateHandler())
 }

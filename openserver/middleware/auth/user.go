@@ -91,7 +91,7 @@ func ZUserVerifyToken(token, appKey string) (*ZUserToken, error) {
 		data.Client,
 		data.Type,
 		data.ExpiredTime,
-		data.PubKey,
+		hex.EncodeToString(data.PubKey),
 	)
 
 	sign := ZDanSign(signData, appKey)
@@ -113,7 +113,7 @@ func ZUserAuthHander() gin.HandlerFunc {
 
 		zdan := config.GetZdan()
 
-		token, err := ZUserVerifyToken(cookie, zdan.CloudDmappKey)
+		token, err := ZUserVerifyToken(cookie, zdan.UserDmappKey)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, common.Response{Code: common.AuthError, Msg: err.Error()})
 			c.Abort()

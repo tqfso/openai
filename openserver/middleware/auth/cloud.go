@@ -83,8 +83,8 @@ func (t *ZCloudToken) Decode(token string) error {
 
 // 签名
 func ZDanSign(data, key string) []byte {
-	key64, _ := base64.StdEncoding.DecodeString(key)
-	value := append([]byte(data), key64...)
+	keyBin, _ := base64.StdEncoding.DecodeString(key)
+	value := append([]byte(data), keyBin...)
 	sign := sha256.Sum256([]byte(value))
 	return append(sign[:], 1)
 }

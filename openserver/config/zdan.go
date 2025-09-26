@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"openserver/logger"
 	"os"
 )
 
@@ -44,6 +45,8 @@ func (c *ZdanConfig) Check() error {
 	if len(port) > 0 && port != "443" && port != "80" {
 		c.ZdanPort = port
 	}
+
+	logger.Info("Zdan config", logger.String("address", c.Address()))
 
 	return nil
 }

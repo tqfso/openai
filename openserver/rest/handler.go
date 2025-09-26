@@ -2,8 +2,8 @@ package rest
 
 import (
 	"common"
+	"context"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,6 +31,7 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 	h.Context = context
 	h.StatusCode = http.StatusOK
 	h.Response.Code = common.Success
+	h.Response.Msg = "success"
 
 	// 解析请求数据
 	if err := context.ShouldBind(&h.Request); err != nil {
@@ -74,20 +75,8 @@ func (h *Handler[T]) GetFromUser() string {
 	return h.Context.GetString("fromUser")
 }
 
-//lint:ignore U1000 Ignore unused function
-func (h *Handler[T]) hasJsonBody() bool {
-	request := h.Context.Request
-	if request.Body == nil || request.Body == http.NoBody {
-		return false
-	}
-
-	contentType := h.Context.GetHeader("Content-Type")
-	return strings.HasPrefix(strings.ToLower(contentType), "application/json")
-}
-
-//lint:ignore U1000 Ignore unused function
-func (h *Handler[T]) hasQueryParams() bool {
-	return len(h.Context.Request.URL.Query()) > 0
+func (h *Handler[T]) GetContext() context.Context {
+	return h.Context.Request.Context()
 }
 
 func (h *Handler[T]) checkPanic() {

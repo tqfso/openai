@@ -67,6 +67,7 @@ CREATE TABLE api_services (
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id TEXT PRIMARY KEY, -- 用户ID，与零极云保持一致
+    nick_name TEXT , -- 昵称
     request_limit BIGINT DEFAULT 60, -- 请求数限流（次/分钟）
     token_limit BIGINT DEFAULT 1000000,  -- Token限流（Tokens/分钟）
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
