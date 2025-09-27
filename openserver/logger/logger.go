@@ -61,7 +61,7 @@ func Init(level string, outputPath string) {
 		core := zapcore.NewTee(cores...)
 
 		// 构建最终 logger
-		logger = zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
+		logger = zap.New(core /*, zap.AddStacktrace(zap.ErrorLevel)*/)
 
 		// 替换全局 logger，以便第三方库也能使用
 		zap.ReplaceGlobals(logger)

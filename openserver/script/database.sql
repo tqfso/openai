@@ -3,6 +3,16 @@
 -- 数据库初始化脚本
 -- ====================
 
+/* 系统配置表 */
+DROP TABLE IF EXISTS system_configs;
+CREATE TABLE system_configs (  
+    key TEXT PRIMARY KEY, -- 配置项名称
+    value TEXT NOT NULL, -- 配置项值
+    description TEXT, -- 描述
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 /* 推理引擎表 */
 DROP TABLE IF EXISTS reason_engines;
 CREATE TABLE reason_engines (
@@ -40,7 +50,8 @@ CREATE TABLE model_services (
 	topo_id BIGINT NOT NULL, -- 所属拓扑域
     model_name TEXT NOT NULL, -- 模型名称
 	model_path TEXT NOT NULL, -- 模型路径，可能用户自定义路径
-    user_id TEXT DEFAULT NULL, -- 用户ID    
+    api_domain TEXT, -- API访问域名
+    user_id TEXT DEFAULT NULL, -- 用户ID
 	is_platform BOOLEAN GENERATED ALWAYS AS ((user_id IS NULL)) STORED,
     power BIGINT NOT NULL DEFAULT 0, -- 部署的算力
     status TEXT DEFAULT 'none', -- 状态: none, uploading, creating, failed, running, stopped, released
@@ -56,12 +67,12 @@ CREATE TABLE api_services (
     topo_id BIGINT NOT NULL, -- 所属拓扑域
     public_ip INET NOT NULL, -- 公网IP
     access_key TEXT NOT NULL, -- 访问密钥
+    model_services JSONB, -- 注册的模型服务列表: [{service_id, model_name, instances[{status, ip, port}]}]
     status TEXT DEFAULT 'none', -- 状态: none, creating, failed, running, stopped, released
     heartbeat_at TIMESTAMPTZ, -- 上次心跳时间
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
 
 /* 用户表 */
 DROP TABLE IF EXISTS users;
