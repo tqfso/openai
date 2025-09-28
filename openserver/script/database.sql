@@ -8,16 +8,26 @@ DROP TABLE IF EXISTS system_configs;
 CREATE TABLE system_configs (  
     key TEXT PRIMARY KEY, -- 配置项名称
     value TEXT NOT NULL, -- 配置项值
-    description TEXT, -- 描述
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+/* 拓扑域表 */
+DROP TABLE IF EXISTS topo_domains;
+CREATE TABLE topo_domains (
+    id BIGSERIAL PRIMARY KEY, -- 拓扑域ID
+    vpc_id BIGINT NOT NULL, -- 私有网络ID
+	description TEXT, -- 描述
+    status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 /* 推理引擎表 */
-DROP TABLE IF EXISTS reason_engines;
-CREATE TABLE reason_engines (
+DROP TABLE IF EXISTS infer_engines;
+CREATE TABLE infer_engines (
     name TEXT  PRIMARY KEY, -- 推理引擎名称: vllm-openai
-    type TEXT NOT NULL, -- 推理引擎类型: vllm, slang, zdan
+    type TEXT NOT NULL, -- 推理引擎类型: vllm, slang, huggingface
     image TEXT NOT NULL, -- 镜像名称
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),

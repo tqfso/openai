@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"common"
 	"context"
 	"fmt"
 	"openserver/model"
@@ -15,6 +14,21 @@ func NewUserRepo() *UserRepo {
 	return &UserRepo{}
 }
 
+// Exists 检查用户是否存在
+func (r *UserRepo) Exists(ctx context.Context, id string) (bool, error) {
+	pool := GetPool()
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer conn.Release()
+
+	var exists bool
+	err = conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM users WHERE id=$1)`, id).Scan(&exists)
+	return exists, err
+}
+
+// Create 创建用户
 func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
@@ -23,17 +37,13 @@ func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	}
 	defer conn.Release()
 
-	// 如果用户已存在，返回错误
-	if err := conn.QueryRow(ctx, `SELECT id FROM users WHERE id=$1`, user.ID).Scan(&user.ID); err == nil {
-		return &common.Error{Code: common.UserExistError, Msg: "User already exists"}
-	}
-
 	// 动态拼接字段和参数,只插入非零值字段
 	fieldMap := map[string]any{
 		"id":            user.ID,
 		"nick_name":     user.NickName,
 		"request_limit": user.RequestLimit,
 		"token_limit":   user.TokenLimit,
+		"status":        user.Status,
 	}
 	columns := []string{}
 	placeholders := []string{}
@@ -45,8 +55,8 @@ func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 			if val == "" {
 				continue
 			}
-		case int, int32, int64:
-			if fmt.Sprintf("%v", val) == "0" {
+		case byte, int16, int, int32, int64, uint16, uint, uint32, uint64:
+			if val == 0 {
 				continue
 			}
 		}
@@ -63,6 +73,7 @@ func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	return err
 }
 
+// GetByID 根据ID获取用户
 func (r *UserRepo) GetByID(ctx context.Context, id string) (*model.User, error) {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
@@ -87,9 +98,31 @@ func (r *UserRepo) Update(ctx context.Context, user *model.User) error {
 	}
 	defer conn.Release()
 
+	fieldMap := map[string]any{
+		"nick_name":     user.NickName,
+		"request_limit": user.RequestLimit,
+		"token_limit":   user.TokenLimit,
+		"status":        user.Status,
+	}
+	columns := []string{}
+	idx := 1
+	for k, v := range fieldMap {
+		switch val := v.(type) {
+		case string:
+			if val == "" {
+				continue
+			}
+		case byte, int16, int, int32, int64, uint16, uint, uint32, uint64:
+			if val == 0 {
+				continue
+			}
+		}
+		columns = append(columns, fmt.Sprintf("%s=$%d", k, idx))
+		idx++
+	}
+
 	_, err = conn.Exec(ctx,
-		`UPDATE users SET nick_name=$1, request_limit=$2, token_limit=$3, status=$4 WHERE id=$5`,
-		user.NickName, user.RequestLimit, user.TokenLimit, user.Status, user.ID,
+		`UPDATE users SET %s WHERE id=%s`, strings.Join(columns, ", "), user.ID,
 	)
 	return err
 }

@@ -5,7 +5,8 @@
 - common 共用包
 - openserver 开放平台服务
 - apiserver API网关服务
-- reasonserver 推理服务
+- inferserver 推理服务
+- trainserver 训练服务
 
 ## 时序数据库
 
