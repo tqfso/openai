@@ -1,9 +1,11 @@
 package config
 
 import (
-	"common/logger"
+	"fmt"
 	"os"
 	"path/filepath"
+
+	"common/logger"
 
 	"gopkg.in/yaml.v3"
 )
@@ -13,10 +15,13 @@ var (
 )
 
 type Config struct {
-	Log      logger.Config  `yaml:"log"`
-	Server   ServerConfig   `yaml:"server"`
-	Zdan     ZdanConfig     `yaml:"zdan"`
-	Database DatabaseConfig `yaml:"database"`
+	Log    logger.Config `yaml:"log"`
+	Server ServerConfig  `yaml:"server"`
+}
+
+type ServerConfig struct {
+	Port int    `yaml:"port"`
+	Host string `yaml:"host"`
 }
 
 func (c *Config) Check() error {
@@ -25,16 +30,8 @@ func (c *Config) Check() error {
 		c.Log = logger.DefaultConfig()
 	}
 
-	if err := c.Server.Check(); err != nil {
-		return err
-	}
-
-	if err := c.Zdan.Check(); err != nil {
-		return err
-	}
-
-	if err := c.Database.Check(); err != nil {
-		return err
+	if c.Server.Port <= 0 || c.Server.Port > 65535 {
+		return fmt.Errorf("invalid server port: %d", c.Server.Port)
 	}
 
 	return nil
@@ -50,14 +47,6 @@ func GetLog() *logger.Config {
 
 func GetServer() *ServerConfig {
 	return &config.Server
-}
-
-func GetZdan() *ZdanConfig {
-	return &config.Zdan
-}
-
-func GetDatabase() *DatabaseConfig {
-	return &config.Database
 }
 
 func Load(filename string) error {

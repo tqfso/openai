@@ -1,0 +1,12 @@
+server:
+  port: 80 # Server listening port
+  host: "0.0.0.0" # Server listening address
+
+log:
+  level: "debug" # Log level (debug, info, warn, error, dpanic, panic, fatal)
+  outputPath: "logs/server.log" # Log output file path (if empty, logs will only be printed to console)
+  maxSize: 100 # Maximum size in MB of the log file before it gets rotated
+  maxBackups: 7 # Maximum number of old log files to retain
+  maxAge: 30 # Maximum number of days to retain old log files
+  compress: true # Whether to compress old log files
+  enableConsole: true # Whether to also log to console

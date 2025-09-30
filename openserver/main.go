@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"common/logger"
 	"openserver/config"
@@ -19,20 +20,19 @@ func main() {
 
 	// 解析参数
 	cfgfile := flag.String("config", "config/config.yaml", "config from file")
-	logfile := flag.String("logs", "logs/app.log", "log to file")
 	flag.Parse()
-
-	// 初始化日志
-	defer logger.Sync()
-	logger.Init("debug", *logfile)
-	logger.Info("Application started", logger.String("config file", *cfgfile))
-	gin.DefaultWriter = logger.GetWriter()
 
 	// 初始化配置
 	if err := config.Load(*cfgfile); err != nil {
-		logger.Error("failed to load config:", logger.Err(err))
+		fmt.Println("Failed to load config:", err)
 		return
 	}
+
+	// 初始化日志
+	defer logger.Sync()
+	logger.Init(*config.GetLog())
+	logger.Info("Application started", logger.Any("config", config.GetConfig()))
+	gin.DefaultWriter = logger.GetWriter()
 
 	// 初始化数据库
 	if err := repository.Init(); err != nil {

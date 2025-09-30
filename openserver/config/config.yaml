@@ -2,13 +2,22 @@ server:
   port: 8080 # Server listening port
   host: "0.0.0.0" # Server listening address
 
+log:
+  level: "debug" # Log level (debug, info, warn, error, dpanic, panic, fatal)
+  outputPath: "logs/server.log" # Log output file path (if empty, logs will only be printed to console)
+  maxSize: 100 # Maximum size in MB of the log file before it gets rotated
+  maxBackups: 7 # Maximum number of old log files to retain
+  maxAge: 30 # Maximum number of days to retain old log files
+  compress: true # Whether to compress old log files
+  enableConsole: true # Whether to also log to console
+
 zdan:
   zdanHost: "192.168.3.181" # 分布式节点访问地址
   zdanPort: 10015 # 分布式节点访问端口
-  cloudDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # 零极云应用ID
-  cloudDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # 零极云应用应用密钥
-  userDmappId: "2A5D8B89CB49D2AD0325F3E419FEC31F2D218EA2" # ZDAN应用ID
-  userDmappKey: "H5ahKWk20AAjEyma3b33Ir45z4AAed5dRZt6s2LrdCg=" # ZDAN应用密钥
+  cloudDmappId: "9ADDD75FAA063AF78250444A19CEDBFE55607985" # 零极云管理系统ID
+  cloudDmappKey: "CeuOmcVx7HvtKEAKafDdBDM+sITa2POSmOpM2XWbJCI=" # 零极云管理系统密钥
+  userDmappId: "2A5D8B89CB49D2AD0325F3E419FEC31F2D218EA2" # 零极云开放平台ID
+  userDmappKey: "H5ahKWk20AAjEyma3b33Ir45z4AAed5dRZt6s2LrdCg=" # 零极云开放平台密钥
 
 database:
   host: "192.168.3.181" # Database host

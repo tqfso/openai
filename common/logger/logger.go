@@ -15,18 +15,18 @@ var (
 	once   sync.Once
 )
 
-func Init(level string, outputPath string) {
+func Init(cfg Config) {
 	once.Do(func() {
-		var lvl zap.AtomicLevel
-		switch level {
+		var level zap.AtomicLevel
+		switch cfg.Level {
 		case "debug":
-			lvl = zap.NewAtomicLevelAt(zap.DebugLevel)
+			level = zap.NewAtomicLevelAt(zap.DebugLevel)
 		case "warn":
-			lvl = zap.NewAtomicLevelAt(zap.WarnLevel)
+			level = zap.NewAtomicLevelAt(zap.WarnLevel)
 		case "error":
-			lvl = zap.NewAtomicLevelAt(zap.ErrorLevel)
+			level = zap.NewAtomicLevelAt(zap.ErrorLevel)
 		default:
-			lvl = zap.NewAtomicLevelAt(zap.InfoLevel)
+			level = zap.NewAtomicLevelAt(zap.InfoLevel)
 		}
 
 		// 编码配置
@@ -42,18 +42,20 @@ func Init(level string, outputPath string) {
 		var cores []zapcore.Core
 
 		// 1. 控制台输出
-		consoleCore := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), lvl)
-		cores = append(cores, consoleCore)
+		if cfg.EnableConsole {
+			consoleCore := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), level)
+			cores = append(cores, consoleCore)
+		}
 
 		// 2. 文件输出（如果指定了路径）
-		if outputPath != "" {
+		if cfg.OutputPath != "" {
 			fileCore := zapcore.NewCore(encoder, zapcore.AddSync(&lumberjack.Logger{
-				Filename:   outputPath, // 日志文件路径
-				MaxSize:    100,        // 每个文件最大 100MB
-				MaxBackups: 7,          // 最多保留 7 个备份
-				MaxAge:     30,         // 最长保存 30 天
-				Compress:   true,       // 启用压缩
-			}), lvl)
+				Filename:   cfg.OutputPath,
+				MaxSize:    cfg.MaxSize,
+				MaxBackups: cfg.MaxBackups,
+				MaxAge:     cfg.MaxAge,
+				Compress:   cfg.Compress,
+			}), level)
 			cores = append(cores, fileCore)
 		}
 
@@ -70,7 +72,7 @@ func Init(level string, outputPath string) {
 
 func getLogger() *zap.Logger {
 	if logger == nil {
-		Init("info", "")
+		Init(DefaultConfig())
 	}
 	return logger
 }
