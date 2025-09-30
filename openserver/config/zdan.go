@@ -1,8 +1,8 @@
 package config
 
 import (
+	"common/logger"
 	"fmt"
-	"openserver/logger"
 	"os"
 )
 

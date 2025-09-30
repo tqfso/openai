@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
+	"common/logger"
 	"openserver/config"
-	"openserver/logger"
 	"openserver/middleware/auth"
 	"openserver/rest/user"
 

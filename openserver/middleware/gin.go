@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"common"
+	"common/logger"
 	"net/http"
-	"openserver/logger"
 	"runtime/debug"
 	"time"
 
