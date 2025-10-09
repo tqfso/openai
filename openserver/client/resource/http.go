@@ -54,9 +54,9 @@ func do(method, endpoint string, param, data, resp any) error {
 		if err != nil {
 			return err
 		}
-		url = fmt.Sprintf("https://%s/zresource/v1%s?%s", zdan.Address(), endpoint, v.Encode())
+		url = fmt.Sprintf("https://%s/zresource/%s?%s", zdan.Address(), endpoint, v.Encode())
 	} else {
-		url = fmt.Sprintf("https://%s/zresource/v1%s", zdan.Address(), endpoint)
+		url = fmt.Sprintf("https://%s/zresource/%s", zdan.Address(), endpoint)
 	}
 
 	logger.Debug("Resource Access", logger.String("method", method), logger.String("url", url))

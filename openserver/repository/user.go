@@ -121,6 +121,8 @@ func (r *UserRepo) Update(ctx context.Context, user *model.User) error {
 		idx++
 	}
 
+	columns = append(columns, "updated_at=NOW()")
+
 	_, err = conn.Exec(ctx,
 		`UPDATE users SET %s WHERE id=%s`, strings.Join(columns, ", "), user.ID,
 	)

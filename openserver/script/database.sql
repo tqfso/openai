@@ -17,7 +17,6 @@ DROP TABLE IF EXISTS topo_domains;
 CREATE TABLE topo_domains (
     id BIGSERIAL PRIMARY KEY, -- 拓扑域ID
     vpc_id BIGINT NOT NULL, -- 私有网络ID
-	description TEXT, -- 描述
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -26,7 +25,7 @@ CREATE TABLE topo_domains (
 /* 推理引擎表 */
 DROP TABLE IF EXISTS infer_engines;
 CREATE TABLE infer_engines (
-    name TEXT  PRIMARY KEY, -- 推理引擎名称: vllm-openai
+    name TEXT PRIMARY KEY, -- 推理引擎名称: vllm-openai
     framework TEXT NOT NULL, -- 推理引擎框架: vllm, slang, ollama, LMDeploy, huggingface
     image TEXT NOT NULL, -- 镜像名称
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled

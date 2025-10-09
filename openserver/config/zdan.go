@@ -8,6 +8,7 @@ import (
 type ZdanConfig struct {
 	CloudDmappId  string `yaml:"cloudDmappId"`
 	CloudDmappKey string `yaml:"cloudDmappKey"`
+	CloudUserId   string `yaml:"cloudUserId"`
 	UserDmappId   string `yaml:"userDmappId"`
 	UserDmappKey  string `yaml:"userDmappKey"`
 	ZdanHost      string `yaml:"zdanHost"`
@@ -22,6 +23,10 @@ func (c *ZdanConfig) Check() error {
 
 	if len(c.CloudDmappKey) == 0 {
 		return fmt.Errorf("invalid cloud dmapp key")
+	}
+
+	if len(c.CloudUserId) == 0 {
+		return fmt.Errorf("invalid cloud user id")
 	}
 
 	if len(c.UserDmappId) == 0 {
