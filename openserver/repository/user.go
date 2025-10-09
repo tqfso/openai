@@ -8,14 +8,12 @@ import (
 	"strings"
 )
 
-// UserRepo 提供用户表相关操作
 type UserRepo struct{}
 
 func NewUserRepo() *UserRepo {
 	return &UserRepo{}
 }
 
-// Exists 检查用户是否存在
 func (r *UserRepo) Exists(ctx context.Context, id string) (bool, error) {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
@@ -29,7 +27,22 @@ func (r *UserRepo) Exists(ctx context.Context, id string) (bool, error) {
 	return exists, err
 }
 
-// Create 创建用户
+func (r *UserRepo) GetByID(ctx context.Context, id string) (*model.User, error) {
+	pool := GetPool()
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx, `SELECT id, nick_name, request_limit, token_limit, status, created_at, updated_at FROM users WHERE id=$1`, id)
+	user := &model.User{}
+	if err := row.Scan(&user.ID, &user.NickName, &user.RequestLimit, &user.TokenLimit, &user.Status, &user.CreatedAt, &user.UpdatedAt); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
@@ -79,23 +92,6 @@ func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	return err
 }
 
-// GetByID 根据ID获取用户
-func (r *UserRepo) GetByID(ctx context.Context, id string) (*model.User, error) {
-	pool := GetPool()
-	conn, err := pool.Acquire(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Release()
-
-	row := conn.QueryRow(ctx, `SELECT id, nick_name, request_limit, token_limit, status, created_at, updated_at FROM users WHERE id=$1`, id)
-	user := &model.User{}
-	if err := row.Scan(&user.ID, &user.NickName, &user.RequestLimit, &user.TokenLimit, &user.Status, &user.CreatedAt, &user.UpdatedAt); err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 func (r *UserRepo) Update(ctx context.Context, user *model.User) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
@@ -110,22 +106,27 @@ func (r *UserRepo) Update(ctx context.Context, user *model.User) error {
 		"token_limit":   user.TokenLimit,
 		"status":        user.Status,
 	}
+
 	columns := []string{}
+	args := []any{}
 	idx := 1
+
 	for k, v := range fieldMap {
 		if IsZeroValue(v) {
 			continue
 		}
-
 		columns = append(columns, fmt.Sprintf("%s=$%d", k, idx))
+		args = append(args, v)
 		idx++
 	}
 
+	// 自动更新时间
 	columns = append(columns, "updated_at=NOW()")
 
-	_, err = conn.Exec(ctx,
-		`UPDATE users SET %s WHERE id=%s`, strings.Join(columns, ", "), user.ID,
-	)
+	sql := fmt.Sprintf("UPDATE users SET %s WHERE id=$%d", strings.Join(columns, ", "), idx)
+	args = append(args, user.ID)
+
+	_, err = conn.Exec(ctx, sql, args...)
 	return err
 }
 

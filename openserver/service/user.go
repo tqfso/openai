@@ -6,7 +6,6 @@ import (
 	"openserver/repository"
 )
 
-// UserService 提供用户相关服务
 type UserService struct{}
 
 func NewUserService() *UserService {

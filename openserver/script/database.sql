@@ -15,7 +15,7 @@ CREATE TABLE system_configs (
 /* 拓扑域表 */
 DROP TABLE IF EXISTS topo_domains;
 CREATE TABLE topo_domains (
-    id BIGSERIAL PRIMARY KEY, -- 拓扑域ID
+    id BIGINT PRIMARY KEY, -- 拓扑域ID
     vpc_id BIGINT NOT NULL, -- 私有网络ID
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -96,8 +96,8 @@ CREATE TABLE users (
 );
 
 /* 用户工作空间表 */
-DROP TABLE IF EXISTS user_workspaces;
-CREATE TABLE user_workspaces (
+DROP TABLE IF EXISTS workspaces;
+CREATE TABLE workspaces (
     id BIGSERIAL PRIMARY KEY,
     user_id TEXT NOT NULL, -- 用户ID
     name TEXT NOT NULL, -- 工作空间名称
