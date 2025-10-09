@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"common"
 	"context"
 	"fmt"
 	"openserver/model"
@@ -37,6 +38,16 @@ func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	}
 	defer conn.Release()
 
+	// 用户是否存在
+	exist, err := r.Exists(ctx, user.ID)
+	if err != nil {
+		return err
+	}
+
+	if exist {
+		return &common.Error{Code: common.UserExistError, Msg: "user already exists"}
+	}
+
 	// 动态拼接字段和参数,只插入非零值字段
 	fieldMap := map[string]any{
 		"id":            user.ID,
@@ -50,16 +61,11 @@ func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	args := []any{}
 	idx := 1
 	for k, v := range fieldMap {
-		switch val := v.(type) {
-		case string:
-			if val == "" {
-				continue
-			}
-		case byte, int16, int, int32, int64, uint16, uint, uint32, uint64:
-			if val == 0 {
-				continue
-			}
+
+		if IsZeroValue(v) {
+			continue
 		}
+
 		columns = append(columns, k)
 		placeholders = append(placeholders, fmt.Sprintf("$%d", idx))
 		args = append(args, v)
@@ -107,16 +113,10 @@ func (r *UserRepo) Update(ctx context.Context, user *model.User) error {
 	columns := []string{}
 	idx := 1
 	for k, v := range fieldMap {
-		switch val := v.(type) {
-		case string:
-			if val == "" {
-				continue
-			}
-		case byte, int16, int, int32, int64, uint16, uint, uint32, uint64:
-			if val == 0 {
-				continue
-			}
+		if IsZeroValue(v) {
+			continue
 		}
+
 		columns = append(columns, fmt.Sprintf("%s=$%d", k, idx))
 		idx++
 	}

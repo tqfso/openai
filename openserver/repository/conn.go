@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"openserver/config"
+	"reflect"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -26,4 +27,8 @@ func Close() {
 
 func GetPool() *pgxpool.Pool {
 	return pool
+}
+
+func IsZeroValue(v any) bool {
+	return reflect.ValueOf(v).IsZero()
 }
