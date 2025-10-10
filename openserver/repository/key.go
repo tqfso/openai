@@ -135,3 +135,15 @@ func (r *ApiKeyRepo) Create(ctx context.Context, apiKey *model.ApiKey) error {
 	_, err = conn.Exec(ctx, sql, args...)
 	return err
 }
+
+func (r *ApiKeyRepo) Delete(ctx context.Context, id string, userID string) error {
+	pool := GetPool()
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(ctx, `DELETE FROM api_keys WHERE id=$1 AND user_id=$2`, id, userID)
+	return err
+}

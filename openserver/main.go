@@ -83,5 +83,6 @@ func SetApiKeyRoute(r *gin.Engine) {
 	u := r.Group("/v1/key", auth.ZUserAuthHander())
 	{
 		u.POST("/create", key.NewCreateHandler())
+		u.POST("/delete", key.NewDeleteHandler())
 	}
 }

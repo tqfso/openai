@@ -5,7 +5,6 @@ import (
 	"common/logger"
 	"context"
 	"net/http"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,9 +41,7 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 		return
 	}
 
-	if h.IsRequestStruct() {
-		logger.Info("REQUEST", logger.Any("param", h.Request))
-	}
+	logger.Info("REQUEST", logger.Any("param", h.Request))
 
 	// 处理请求
 	if h.Task != nil {
@@ -107,10 +104,4 @@ func (h *Handler[T]) checkPanic() {
 	} else {
 		h.SetError(common.HandleError, err.Error())
 	}
-}
-
-func (h *Handler[T]) IsRequestStruct() bool {
-	v := reflect.ValueOf(h.Request)
-	t := v.Type()
-	return t.Kind() == reflect.Struct
 }

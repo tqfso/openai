@@ -97,3 +97,14 @@ func (s *ApiKeyService) Create(ctx context.Context, userID, workspaceID, descrip
 
 	return plainText, nil
 }
+
+// 删除密钥
+func (s *ApiKeyService) Delete(ctx context.Context, id, userID string) error {
+
+	cipherText, err := secure.Encrypt(id)
+	if err != nil {
+		return err
+	}
+
+	return repository.ApiKey().Delete(ctx, cipherText, userID)
+}
