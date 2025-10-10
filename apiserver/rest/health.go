@@ -12,7 +12,9 @@ func (h *HealthHandler) Handle() {
 }
 
 func NewHealthHandler() gin.HandlerFunc {
-	h := &HealthHandler{}
-	h.SetTaskHandler(h)
-	return h.OnRequest
+	return func(c *gin.Context) {
+		h := &HealthHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
 }

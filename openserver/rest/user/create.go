@@ -31,7 +31,9 @@ func (h *CreateHandler) Handle() {
 }
 
 func NewCreateHandler() gin.HandlerFunc {
-	h := &CreateHandler{}
-	h.SetTaskHandler(h)
-	return h.OnRequest
+	return func(c *gin.Context) {
+		h := &CreateHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
 }

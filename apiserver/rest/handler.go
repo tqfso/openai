@@ -2,8 +2,10 @@ package rest
 
 import (
 	"common"
+	"common/logger"
 	"context"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,6 +40,10 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 		h.SetError(common.RequestDataError, err.Error())
 		h.SendResponse()
 		return
+	}
+
+	if h.IsRequestStruct() {
+		logger.Info("REQUEST", logger.Any("param", h.Request))
 	}
 
 	// 处理请求
@@ -93,4 +99,10 @@ func (h *Handler[T]) checkPanic() {
 	} else {
 		h.SetError(common.HandleError, err.Error())
 	}
+}
+
+func (h *Handler[T]) IsRequestStruct() bool {
+	v := reflect.ValueOf(h.Request)
+	t := v.Type()
+	return t.Kind() == reflect.Struct
 }

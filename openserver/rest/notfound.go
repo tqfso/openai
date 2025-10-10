@@ -15,7 +15,9 @@ func (h *NotFoundHandler) Handle() {
 }
 
 func NewNotFoundHandler() gin.HandlerFunc {
-	h := &NotFoundHandler{}
-	h.SetTaskHandler(h)
-	return h.OnRequest
+	return func(c *gin.Context) {
+		h := &NotFoundHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
 }

@@ -28,7 +28,9 @@ func (h *DeleteHandler) Handle() {
 }
 
 func NewDeleteHandler() gin.HandlerFunc {
-	h := &DeleteHandler{}
-	h.SetTaskHandler(h)
-	return h.OnRequest
+	return func(c *gin.Context) {
+		h := &DeleteHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
 }

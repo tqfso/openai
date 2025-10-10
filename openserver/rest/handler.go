@@ -36,13 +36,13 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 	h.Response.Msg = "success"
 
 	// 解析请求数据
-	if h.IsRequestStruct() {
-		if err := context.ShouldBind(&h.Request); err != nil {
-			h.SetError(common.RequestDataError, err.Error())
-			h.SendResponse()
-			return
-		}
+	if err := context.ShouldBind(&h.Request); err != nil {
+		h.SetError(common.RequestDataError, err.Error())
+		h.SendResponse()
+		return
+	}
 
+	if h.IsRequestStruct() {
 		logger.Info("REQUEST", logger.Any("param", h.Request))
 	}
 
