@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Workspace struct {
-	ID        uint64    `json:"id"`
+	ID        string    `json:"id"`
 	UserID    string    `json:"userID"`
 	Name      string    `json:"name"`
 	Status    string    `json:"status"`
@@ -12,7 +12,7 @@ type Workspace struct {
 }
 
 type UsageLimit struct {
-	WorkspaceID  uint64    `json:"workspaceID"`
+	WorkspaceID  string    `json:"workspaceID"`
 	ServiceID    string    `json:"serviceID"`
 	RequestLimit int64     `json:"requestLimit"`
 	TokenLimit   int64     `json:"tokenLimit"`

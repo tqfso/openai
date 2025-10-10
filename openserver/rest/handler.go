@@ -2,8 +2,10 @@ package rest
 
 import (
 	"common"
+	"common/logger"
 	"context"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,10 +36,14 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 	h.Response.Msg = "success"
 
 	// 解析请求数据
-	if err := context.ShouldBind(&h.Request); err != nil {
-		h.SetError(common.RequestDataError, err.Error())
-		h.SendResponse()
-		return
+	if h.IsRequestStruct() {
+		if err := context.ShouldBind(&h.Request); err != nil {
+			h.SetError(common.RequestDataError, err.Error())
+			h.SendResponse()
+			return
+		}
+
+		logger.Info("REQUEST", logger.Any("param", h.Request))
 	}
 
 	// 处理请求
@@ -52,6 +58,10 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 
 func (h *Handler[T]) SendResponse() {
 	h.Context.JSON(h.StatusCode, h.Response)
+
+	if h.Response.Code != common.Success {
+		logger.Error("RESPONSE", logger.Int("code", h.Response.Code), logger.String("msg", h.Response.Msg))
+	}
 }
 
 func (h *Handler[T]) SetTaskHandler(handler TaskInterface) {
@@ -97,4 +107,10 @@ func (h *Handler[T]) checkPanic() {
 	} else {
 		h.SetError(common.HandleError, err.Error())
 	}
+}
+
+func (h *Handler[T]) IsRequestStruct() bool {
+	v := reflect.ValueOf(h.Request)
+	t := v.Type()
+	return t.Kind() == reflect.Struct
 }

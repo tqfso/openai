@@ -13,7 +13,7 @@ func Workspace() *WorkspaceRepo {
 	return &WorkspaceRepo{}
 }
 
-func (r *WorkspaceRepo) GetByID(ctx context.Context, id uint64) (*model.Workspace, error) {
+func (r *WorkspaceRepo) GetByID(ctx context.Context, id string) (*model.Workspace, error) {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
@@ -90,11 +90,11 @@ func (r *WorkspaceRepo) ListByUser(ctx context.Context, userID string) ([]*model
 	return workspaces, nil
 }
 
-func (r *WorkspaceRepo) Create(ctx context.Context, workspace *model.Workspace) (uint64, error) {
+func (r *WorkspaceRepo) Create(ctx context.Context, workspace *model.Workspace) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	defer conn.Release()
 
@@ -120,13 +120,12 @@ func (r *WorkspaceRepo) Create(ctx context.Context, workspace *model.Workspace) 
 		idx++
 	}
 
-	id := uint64(0)
-	sql := fmt.Sprintf("INSERT INTO workspaces (%s) VALUES (%s) RETURNING id",
+	sql := fmt.Sprintf("INSERT INTO workspaces (%s) VALUES (%s)",
 		strings.Join(columns, ", "),
 		strings.Join(placeholders, ", "))
 
-	err = conn.QueryRow(ctx, sql, args...).Scan(&id)
-	return id, err
+	_, err = conn.Exec(ctx, sql, args...)
+	return err
 }
 
 func (r *WorkspaceRepo) Delete(ctx context.Context, id uint64, userID string) error {

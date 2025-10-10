@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"openserver/model"
 	"openserver/repository"
+
+	"github.com/google/uuid"
 )
 
 type WorkspaceService struct{}
@@ -15,7 +17,7 @@ func Workspace() *WorkspaceService {
 }
 
 // 查询指定工作空间
-func (s *WorkspaceService) FindWorkspace(ctx context.Context, id uint64) (*model.Workspace, error) {
+func (s *WorkspaceService) FindWorkspace(ctx context.Context, id string) (*model.Workspace, error) {
 	return repository.Workspace().GetByID(ctx, id)
 }
 
@@ -25,26 +27,29 @@ func (s *WorkspaceService) ListByUser(ctx context.Context, userID string) ([]*mo
 }
 
 // 创建工作空间
-func (s *WorkspaceService) Create(ctx context.Context, userID, name string) (uint64, error) {
+func (s *WorkspaceService) Create(ctx context.Context, userID, name string) (string, error) {
 
 	count, err := repository.Workspace().GetCountByUser(ctx, userID)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	if count >= model.MaxWorkspaceCount {
-		return 0, &common.Error{
+		return "", &common.Error{
 			Code: common.WorkspaceCountLimit,
 			Msg:  fmt.Sprintf("The workspace has reached the maximum number: %d", model.MaxWorkspaceCount),
 		}
 	}
 
+	u := uuid.New()
+
 	workspace := model.Workspace{
+		ID: u.String(),
 		UserID: userID,
 		Name:   name,
 	}
 
-	return repository.Workspace().Create(ctx, &workspace)
+	return workspace.ID, repository.Workspace().Create(ctx, &workspace)
 }
 
 // 删除工作空间
@@ -53,7 +58,7 @@ func (s *WorkspaceService) Delete(ctx context.Context, id uint64, userID string)
 }
 
 // 授权模型服务
-func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceId uint64, serviceId string) error {
+func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceId, serviceId string) error {
 
 	usageLimit := model.UsageLimit{
 		WorkspaceID: workspaceId,
@@ -63,7 +68,7 @@ func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceId uin
 }
 
 // 设置调用限制
-func (s *WorkspaceService) UpdateUsageLimit(ctx context.Context, workspaceId uint64, serviceId string, requestLimit, tokenLimit int64) error {
+func (s *WorkspaceService) UpdateUsageLimit(ctx context.Context, workspaceId, serviceId string, requestLimit, tokenLimit int64) error {
 	usageLimit := model.UsageLimit{
 		WorkspaceID:  workspaceId,
 		ServiceID:    serviceId,

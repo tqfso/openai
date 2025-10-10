@@ -98,7 +98,7 @@ CREATE TABLE users (
 /* 用户工作空间表 */
 DROP TABLE IF EXISTS workspaces;
 CREATE TABLE workspaces (
-    id BIGSERIAL PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL, -- 用户ID
     name TEXT NOT NULL, -- 工作空间名称
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
@@ -110,8 +110,8 @@ CREATE TABLE workspaces (
 /* 调用限制 */
 DROP TABLE IF EXISTS usage_limits;
 CREATE TABLE usage_limits (
-    workspace_id BIGINT NOT NULL, -- 所属工作空间ID
-    service_id BIGINT NOT NULL, -- 模型服务ID
+    workspace_id TEXT NOT NULL, -- 所属工作空间ID
+    service_id TEXT NOT NULL, -- 模型服务ID
     request_limit BIGINT NOT NULL, -- 请求数限流（次/分钟）
     token_limit BIGINT NOT NULL,  -- Token限流（Tokens/分钟）
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -124,7 +124,7 @@ DROP TABLE IF EXISTS api_keys;
 CREATE TABLE api_keys (
     id TEXT PRIMARY KEY,  -- API密钥
     user_id TEXT NOT NULL, -- 用户ID
-    workspace_id BIGINT NOT NULL, -- 所属工作空间ID
+    workspace_id TEXT NOT NULL, -- 所属工作空间ID
     description TEXT, -- 描述
     expires_at TIMESTAMPTZ, -- 过期时间，NULL 表示永不过期
     created_at TIMESTAMPTZ DEFAULT NOW(),

@@ -8,6 +8,7 @@ import (
 	"openserver/config"
 	"openserver/middleware/auth"
 	"openserver/rest/user"
+	"openserver/rest/workspace"
 
 	"openserver/middleware"
 	"openserver/repository"
@@ -58,9 +59,21 @@ func main() {
 
 func SetRoute(r *gin.Engine) {
 	SetUserRoute(r)
+	SetWorkspaceRoute(r)
 }
 
 func SetUserRoute(r *gin.Engine) {
 	u := r.Group("/v1/user", auth.ZUserAuthHander())
-	u.POST("/create", user.NewCreateHandler())
+	{
+		u.POST("/create", user.NewCreateHandler())
+	}
+
+}
+
+func SetWorkspaceRoute(r *gin.Engine) {
+	u := r.Group("/v1/workspace", auth.ZUserAuthHander())
+	{
+		u.POST("/create", workspace.NewCreateHandler())
+	}
+
 }

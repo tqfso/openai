@@ -7,6 +7,7 @@ import (
 	"openserver/model"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -141,6 +142,7 @@ func (r *UserRepo) CreateWithDefaultWorkspace(ctx context.Context, user *model.U
 		// 插入默认工作空间
 
 		fieldMap = map[string]any{
+			"id":      uuid.New().String(),
 			"user_id": user.ID,
 			"name":    "default",
 		}

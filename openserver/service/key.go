@@ -34,7 +34,7 @@ func (s *ApiKeyService) FindByID(ctx context.Context, id string) (*model.ApiKey,
 
 // 查询用户密钥列表
 func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*model.ApiKey, int, error) {
-	apiKeys, totalCount, err := repository.ApiKey().ListByUser(ctx, userID, 0, page, pageSize)
+	apiKeys, totalCount, err := repository.ApiKey().ListByUser(ctx, userID, page, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -53,7 +53,7 @@ func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, page, pag
 }
 
 // 创建密钥
-func (s *ApiKeyService) Create(ctx context.Context, workspaceID uint64, description string, expiredAt *time.Time) (string, error) {
+func (s *ApiKeyService) Create(ctx context.Context, workspaceID, description string, expiredAt *time.Time) (string, error) {
 
 	// 先随机生成，再加密存储
 

@@ -42,7 +42,7 @@ func (r *ApiKeyRepo) GetByID(ctx context.Context, id string) (*model.ApiKey, err
 	return apiKey, nil
 }
 
-func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, workspaceID uint64, page, pageSize int) ([]*model.ApiKey, int, error) {
+func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*model.ApiKey, int, error) {
 	conn, err := GetPool().Acquire(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -58,17 +58,11 @@ func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, workspaceID 
 	offset := (page - 1) * pageSize
 
 	where := []string{fmt.Sprintf("user_id=%s", userID)}
-	args := pgx.NamedArgs{}
-
-	if workspaceID != 0 {
-		where = append(where, "workspace_id=:workspace_id")
-		args["workspace_id"] = workspaceID
-	}
 
 	// 查询总数
 	countSQL := fmt.Sprintf("SELECT COUNT(*) FROM api_keys WHERE %s", strings.Join(where, " AND "))
 	var total int
-	if err := conn.QueryRow(ctx, countSQL, args).Scan(&total); err != nil {
+	if err := conn.QueryRow(ctx, countSQL).Scan(&total); err != nil {
 		return nil, 0, err
 	}
 
@@ -81,7 +75,7 @@ func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, workspaceID 
         LIMIT %d OFFSET %d
     `, strings.Join(where, " AND "), pageSize, offset)
 
-	rows, err := conn.Query(ctx, sql, args)
+	rows, err := conn.Query(ctx, sql)
 	if err != nil {
 		return nil, 0, err
 	}

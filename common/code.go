@@ -12,9 +12,10 @@ const (
 	InnerAccessError  int = 8 // 内部访问失败
 
 	UserExistError  int = 1000 // 用户已存在
-	CreateUserError int = 1001 // 创建用户失败
+	UserCreateError int = 1001 // 创建用户失败
 
 	WorkspaceCountLimit int = 2000 // 达到最大工作空间数量
+	WorkspaceNotFound   int = 2001 // 未找到工作空间
 
 )
 

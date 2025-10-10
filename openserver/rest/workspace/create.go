@@ -1,4 +1,4 @@
-package user
+package workspace
 
 import (
 	"common"
@@ -13,9 +13,11 @@ type CreateHandler struct {
 }
 
 type CreateRequest struct {
-	NickName     string `json:"nickName"`
-	RequestLimit int64  `json:"requestLimit"`
-	TokenLimit   int64  `json:"tokenLimit"`
+	Name string `json:"name" binding:"required"`
+}
+
+type CreateResponse struct {
+	ID string `json:"id"`
 }
 
 func (h *CreateHandler) Handle() {
@@ -23,11 +25,13 @@ func (h *CreateHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
 	userId := h.GetFromUser()
-	err := service.User().Create(ctx, userId, req.NickName, req.RequestLimit, req.TokenLimit)
+	id, err := service.Workspace().Create(ctx, userId, req.Name)
 	if err != nil {
-		h.SetError(common.GetErrorCode(err, common.UserCreateError), err.Error())
+		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
 		return
 	}
+
+	h.SetResponseData(&CreateResponse{ID: id})
 }
 
 func NewCreateHandler() gin.HandlerFunc {
