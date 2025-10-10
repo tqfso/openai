@@ -14,7 +14,6 @@ func Workspace() *WorkspaceRepo {
 }
 
 func (r *WorkspaceRepo) GetByID(ctx context.Context, id uint64) (*model.Workspace, error) {
-
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
@@ -22,13 +21,30 @@ func (r *WorkspaceRepo) GetByID(ctx context.Context, id uint64) (*model.Workspac
 	}
 	defer conn.Release()
 
-	row := conn.QueryRow(ctx, `SELECT id, user_id, name, description, status, created_at, updated_at FROM workspaces WHERE id=$1`, id)
+	row := conn.QueryRow(ctx, `SELECT id, user_id, name, status, created_at, updated_at FROM workspaces WHERE id=$1`, id)
 	workspace := &model.Workspace{}
-	if err := row.Scan(&workspace.ID, &workspace.UserID, &workspace.Name, &workspace.Desc, &workspace.Status, &workspace.CreatedAt, &workspace.UpdatedAt); err != nil {
+	if err := row.Scan(&workspace.ID, &workspace.UserID, &workspace.Name, &workspace.Status, &workspace.CreatedAt, &workspace.UpdatedAt); err != nil {
 		return nil, err
 	}
 
 	return workspace, nil
+}
+
+func (r *WorkspaceRepo) GetCountByUser(ctx context.Context, userID string) (int, error) {
+	pool := GetPool()
+	conn, err := pool.Acquire(ctx)
+	if err != nil {
+		return 0, err
+	}
+	defer conn.Release()
+
+	var total int
+	err = conn.QueryRow(ctx, `SELECT COUNT(*) FROM workspaces WHERE user_id = $1`, userID).Scan(&total)
+	if err != nil {
+		return 0, err
+	}
+
+	return total, nil
 }
 
 func (r *WorkspaceRepo) ListAll(ctx context.Context, userID string) ([]*model.Workspace, error) {
@@ -40,7 +56,7 @@ func (r *WorkspaceRepo) ListAll(ctx context.Context, userID string) ([]*model.Wo
 	defer conn.Release()
 
 	rows, err := conn.Query(ctx, `
-		SELECT id, user_id, name, description, status, created_at, updated_at
+		SELECT id, user_id, name, status, created_at, updated_at
 		FROM workspaces
 		WHERE user_id = $1
 		ORDER BY created_at ASC
@@ -57,7 +73,6 @@ func (r *WorkspaceRepo) ListAll(ctx context.Context, userID string) ([]*model.Wo
 			&workspace.ID,
 			&workspace.UserID,
 			&workspace.Name,
-			&workspace.Desc,
 			&workspace.Status,
 			&workspace.CreatedAt,
 			&workspace.UpdatedAt,
@@ -84,11 +99,10 @@ func (r *WorkspaceRepo) Create(ctx context.Context, workspace *model.Workspace) 
 	defer conn.Release()
 
 	fieldMap := map[string]any{
-		"id":          workspace.ID,
-		"user_id":     workspace.UserID,
-		"name":        workspace.Name,
-		"description": workspace.Desc,
-		"status":      workspace.Status,
+		"id":      workspace.ID,
+		"user_id": workspace.UserID,
+		"name":    workspace.Name,
+		"status":  workspace.Status,
 	}
 	columns := []string{}
 	placeholders := []string{}
@@ -115,7 +129,7 @@ func (r *WorkspaceRepo) Create(ctx context.Context, workspace *model.Workspace) 
 	return id, err
 }
 
-func (r *WorkspaceRepo) Delete(ctx context.Context, id, userID string) error {
+func (r *WorkspaceRepo) Delete(ctx context.Context, id uint64, userID string) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {

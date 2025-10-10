@@ -14,6 +14,8 @@ const (
 	UserExistError  int = 1000 // 用户已存在
 	CreateUserError int = 1001 // 创建用户失败
 
+	WorkspaceCountLimit int = 2000 // 达到最大工作空间数量
+
 )
 
 var messages = map[int]string{

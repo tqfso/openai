@@ -101,7 +101,6 @@ CREATE TABLE workspaces (
     id BIGSERIAL PRIMARY KEY,
     user_id TEXT NOT NULL, -- 用户ID
     name TEXT NOT NULL, -- 工作空间名称
-    description TEXT, -- 描述
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -123,8 +122,9 @@ CREATE TABLE usage_limits (
 /* API密钥表 */
 DROP TABLE IF EXISTS api_keys;
 CREATE TABLE api_keys (
-    api_keys TEXT PRIMARY KEY,  -- API密钥
+    id TEXT PRIMARY KEY,  -- API密钥
     workspace_id BIGINT NOT NULL, -- 所属工作空间ID
+    description TEXT, -- 描述
     expires_at TIMESTAMPTZ, -- 过期时间，NULL 表示永不过期
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
