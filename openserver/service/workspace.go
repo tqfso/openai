@@ -8,13 +8,13 @@ import (
 
 type WorkspaceService struct{}
 
-func NewWorkspaceService() *WorkspaceService {
+func Workspace() *WorkspaceService {
 	return &WorkspaceService{}
 }
 
 // 获取用户工作空间列表
 func (s *WorkspaceService) ListAll(ctx context.Context, userID string) ([]*model.Workspace, error) {
-	return repository.NewWorkspaceRepo().ListAll(ctx, userID)
+	return repository.Workspace().ListAll(ctx, userID)
 }
 
 // 创建工作空间
@@ -24,12 +24,12 @@ func (s *WorkspaceService) Create(ctx context.Context, userID, name string) (uin
 		Name:   name,
 	}
 
-	return repository.NewWorkspaceRepo().Create(ctx, &workspace)
+	return repository.Workspace().Create(ctx, &workspace)
 }
 
 // 删除工作空间
 func (s *WorkspaceService) Delete(ctx context.Context, id, userID string) error {
-	return repository.NewWorkspaceRepo().Delete(ctx, id, userID)
+	return repository.Workspace().Delete(ctx, id, userID)
 }
 
 // 授权模型服务
@@ -39,7 +39,7 @@ func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceId uin
 		WorkspaceID: workspaceId,
 		ServiceID:   serviceId,
 	}
-	return repository.NewUsageLimitRepo().Create(ctx, &usageLimit)
+	return repository.UsageLimit().Create(ctx, &usageLimit)
 }
 
 // 设置调用限制
@@ -50,5 +50,5 @@ func (s *WorkspaceService) UpdateUsageLimit(ctx context.Context, workspaceId uin
 		RequestLimit: requestLimit,
 		TokenLimit:   tokenLimit,
 	}
-	return repository.NewUsageLimitRepo().Update(ctx, &usageLimit)
+	return repository.UsageLimit().Update(ctx, &usageLimit)
 }

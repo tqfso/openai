@@ -7,7 +7,7 @@ import (
 
 type UsageLimitRepo struct{}
 
-func NewUsageLimitRepo() *UsageLimitRepo {
+func UsageLimit() *UsageLimitRepo {
 	return &UsageLimitRepo{}
 }
 

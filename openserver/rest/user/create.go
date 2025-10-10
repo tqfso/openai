@@ -23,8 +23,7 @@ func (h *CreateHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
 	userId := h.GetFromUser()
-	svc := service.NewUserService()
-	err := svc.CreateUser(ctx, userId, req.NickName, req.RequestLimit, req.TokenLimit)
+	err := service.User().Create(ctx, userId, req.NickName, req.RequestLimit, req.TokenLimit)
 	if err != nil {
 		h.SetError(common.GetErrorCode(err, common.CreateUserError), err.Error())
 		return

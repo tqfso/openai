@@ -7,7 +7,7 @@ import (
 
 type TopoRepo struct{}
 
-func NewTopoRepo() *TopoRepo {
+func Topo() *TopoRepo {
 	return &TopoRepo{}
 }
 

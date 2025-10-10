@@ -8,12 +8,12 @@ import (
 
 type UserService struct{}
 
-func NewUserService() *UserService {
+func User() *UserService {
 	return &UserService{}
 }
 
-// 开通用户
-func (s *UserService) CreateUser(ctx context.Context, id, nickName string, requestLimit, tokenLimit int64) error {
+// 用户开通模型开放平台
+func (s *UserService) Create(ctx context.Context, id, nickName string, requestLimit, tokenLimit int64) error {
 	user := &model.User{
 		ID:           id,
 		NickName:     nickName,
@@ -21,5 +21,5 @@ func (s *UserService) CreateUser(ctx context.Context, id, nickName string, reque
 		TokenLimit:   tokenLimit,
 	}
 
-	return repository.NewUserRepo().Create(ctx, user)
+	return repository.User().Create(ctx, user)
 }

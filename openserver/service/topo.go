@@ -13,7 +13,7 @@ import (
 
 type TopoService struct{}
 
-func NewTopoService() *TopoService {
+func Topo() *TopoService {
 	return &TopoService{}
 }
 
@@ -21,7 +21,7 @@ func NewTopoService() *TopoService {
 
 func (s *TopoService) FetchVpcID(ctx context.Context, topoID uint64) (uint64, error) {
 
-	topoRepo := repository.NewTopoRepo()
+	topoRepo := repository.Topo()
 	topo, err := topoRepo.GetByID(ctx, topoID)
 	if errors.Is(err, pgx.ErrNoRows) {
 

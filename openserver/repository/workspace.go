@@ -9,7 +9,7 @@ import (
 
 type WorkspaceRepo struct{}
 
-func NewWorkspaceRepo() *WorkspaceRepo {
+func Workspace() *WorkspaceRepo {
 	return &WorkspaceRepo{}
 }
 
