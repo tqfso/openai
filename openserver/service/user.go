@@ -21,5 +21,5 @@ func (s *UserService) Create(ctx context.Context, id, nickName string, requestLi
 		TokenLimit:   tokenLimit,
 	}
 
-	return repository.User().Create(ctx, user)
+	return repository.User().CreateWithDefaultWorkspace(ctx, user)
 }

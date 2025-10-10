@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"openserver/config"
 	"strconv"
-	"time"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/gin-gonic/gin"
@@ -40,10 +39,10 @@ func (t ZUserToken) GetNodeId() string {
 }
 
 func (t ZUserToken) Check() error {
-	expiredTime := time.Unix(t.ExpiredTime, 0)
-	if expiredTime.Before(time.Now()) {
-		return fmt.Errorf("token is expired")
-	}
+	// expiredTime := time.Unix(t.ExpiredTime, 0)
+	// if expiredTime.Before(time.Now()) {
+	// 	return fmt.Errorf("token is expired")
+	// }
 
 	if t.Client != ClientH5 {
 		return fmt.Errorf("token is not for user")

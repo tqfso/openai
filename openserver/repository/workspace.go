@@ -47,7 +47,7 @@ func (r *WorkspaceRepo) GetCountByUser(ctx context.Context, userID string) (int,
 	return total, nil
 }
 
-func (r *WorkspaceRepo) ListAll(ctx context.Context, userID string) ([]*model.Workspace, error) {
+func (r *WorkspaceRepo) ListByUser(ctx context.Context, userID string) ([]*model.Workspace, error) {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {

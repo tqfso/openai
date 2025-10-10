@@ -33,8 +33,8 @@ func (s *ApiKeyService) FindByID(ctx context.Context, id string) (*model.ApiKey,
 }
 
 // 查询用户密钥列表
-func (s *ApiKeyService) ListAll(ctx context.Context, userID string, page, pageSize int) ([]*model.ApiKey, int, error) {
-	apiKeys, totalCount, err := repository.ApiKey().ListAll(ctx, page, pageSize, 0)
+func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*model.ApiKey, int, error) {
+	apiKeys, totalCount, err := repository.ApiKey().ListByUser(ctx, userID, 0, page, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}

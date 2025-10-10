@@ -20,8 +20,8 @@ func (s *WorkspaceService) FindWorkspace(ctx context.Context, id uint64) (*model
 }
 
 // 查询用户工作空间列表
-func (s *WorkspaceService) ListAll(ctx context.Context, userID string) ([]*model.Workspace, error) {
-	return repository.Workspace().ListAll(ctx, userID)
+func (s *WorkspaceService) ListByUser(ctx context.Context, userID string) ([]*model.Workspace, error) {
+	return repository.Workspace().ListByUser(ctx, userID)
 }
 
 // 创建工作空间

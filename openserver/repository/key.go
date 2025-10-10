@@ -23,13 +23,14 @@ func (r *ApiKeyRepo) GetByID(ctx context.Context, id string) (*model.ApiKey, err
 	defer conn.Release()
 
 	row := conn.QueryRow(ctx, `
-		SELECT id, workspace_id, description, expires_at, created_at, updated_at 
+		SELECT id, user_id, workspace_id, description, expires_at, created_at, updated_at 
 		FROM api_keys 
 		WHERE id = $1`, id)
 
 	apiKey := &model.ApiKey{}
 	if err := row.Scan(
 		&apiKey.ID,
+		&apiKey.UserID,
 		&apiKey.WorkspaceID,
 		&apiKey.Description,
 		&apiKey.ExpiresAt,
@@ -41,7 +42,7 @@ func (r *ApiKeyRepo) GetByID(ctx context.Context, id string) (*model.ApiKey, err
 	return apiKey, nil
 }
 
-func (r *ApiKeyRepo) ListAll(ctx context.Context, page, pageSize int, workspaceID uint64) ([]*model.ApiKey, int, error) {
+func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, workspaceID uint64, page, pageSize int) ([]*model.ApiKey, int, error) {
 	conn, err := GetPool().Acquire(ctx)
 	if err != nil {
 		return nil, 0, err
@@ -56,11 +57,11 @@ func (r *ApiKeyRepo) ListAll(ctx context.Context, page, pageSize int, workspaceI
 	}
 	offset := (page - 1) * pageSize
 
-	where := []string{"1=1"}
+	where := []string{fmt.Sprintf("user_id=%s", userID)}
 	args := pgx.NamedArgs{}
 
 	if workspaceID != 0 {
-		where = append(where, "workspace_id = :workspace_id")
+		where = append(where, "workspace_id=:workspace_id")
 		args["workspace_id"] = workspaceID
 	}
 
@@ -117,6 +118,7 @@ func (r *ApiKeyRepo) Create(ctx context.Context, apiKey *model.ApiKey) error {
 
 	fieldMap := map[string]any{
 		"id":           apiKey.ID,
+		"user_id":      apiKey.UserID,
 		"workspace_id": apiKey.WorkspaceID,
 		"description":  apiKey.Description,
 		"expires_at":   apiKey.ExpiresAt,

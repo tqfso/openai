@@ -6,6 +6,7 @@ import (
 	"openserver/config"
 	"reflect"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -31,4 +32,24 @@ func GetPool() *pgxpool.Pool {
 
 func IsZeroValue(v any) bool {
 	return reflect.ValueOf(v).IsZero()
+}
+
+func WithTx(ctx context.Context, fn func(tx pgx.Tx) error) error {
+	conn, err := GetPool().Acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Release()
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	if err := fn(tx); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

@@ -123,6 +123,7 @@ CREATE TABLE usage_limits (
 DROP TABLE IF EXISTS api_keys;
 CREATE TABLE api_keys (
     id TEXT PRIMARY KEY,  -- API密钥
+    user_id TEXT NOT NULL, -- 用户ID
     workspace_id BIGINT NOT NULL, -- 所属工作空间ID
     description TEXT, -- 描述
     expires_at TIMESTAMPTZ, -- 过期时间，NULL 表示永不过期

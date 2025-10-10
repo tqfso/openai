@@ -37,10 +37,10 @@ type ZCloudToken struct {
 }
 
 func (t ZCloudToken) Check() error {
-	expiredTime := time.Unix(t.ExpiredTime, 0)
-	if expiredTime.Before(time.Now()) {
-		return fmt.Errorf("token is expired")
-	}
+	// expiredTime := time.Unix(t.ExpiredTime, 0)
+	// if expiredTime.Before(time.Now()) {
+	// 	return fmt.Errorf("token is expired")
+	// }
 
 	if t.Client != ClientCloud {
 		return fmt.Errorf("token is not for cloud")
