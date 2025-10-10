@@ -53,7 +53,7 @@ func (s *WorkspaceService) Create(ctx context.Context, userID, name string) (str
 }
 
 // 删除工作空间
-func (s *WorkspaceService) Delete(ctx context.Context, id uint64, userID string) error {
+func (s *WorkspaceService) Delete(ctx context.Context, id string, userID string) error {
 	return repository.Workspace().Delete(ctx, id, userID)
 }
 

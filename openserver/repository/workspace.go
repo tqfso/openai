@@ -128,7 +128,7 @@ func (r *WorkspaceRepo) Create(ctx context.Context, workspace *model.Workspace) 
 	return err
 }
 
-func (r *WorkspaceRepo) Delete(ctx context.Context, id uint64, userID string) error {
+func (r *WorkspaceRepo) Delete(ctx context.Context, id string, userID string) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {

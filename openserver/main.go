@@ -74,6 +74,7 @@ func SetWorkspaceRoute(r *gin.Engine) {
 	u := r.Group("/v1/workspace", auth.ZUserAuthHander())
 	{
 		u.POST("/create", workspace.NewCreateHandler())
+		u.POST("/delete", workspace.NewDeleteHandler())
 	}
 
 }
