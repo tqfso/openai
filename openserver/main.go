@@ -7,6 +7,7 @@ import (
 	"common/logger"
 	"openserver/config"
 	"openserver/middleware/auth"
+	"openserver/rest/key"
 	"openserver/rest/user"
 	"openserver/rest/workspace"
 
@@ -60,6 +61,7 @@ func main() {
 func SetRoute(r *gin.Engine) {
 	SetUserRoute(r)
 	SetWorkspaceRoute(r)
+	SetApiKeyRoute(r)
 }
 
 func SetUserRoute(r *gin.Engine) {
@@ -67,7 +69,6 @@ func SetUserRoute(r *gin.Engine) {
 	{
 		u.POST("/create", user.NewCreateHandler())
 	}
-
 }
 
 func SetWorkspaceRoute(r *gin.Engine) {
@@ -76,5 +77,11 @@ func SetWorkspaceRoute(r *gin.Engine) {
 		u.POST("/create", workspace.NewCreateHandler())
 		u.POST("/delete", workspace.NewDeleteHandler())
 	}
+}
 
+func SetApiKeyRoute(r *gin.Engine) {
+	u := r.Group("/v1/key", auth.ZUserAuthHander())
+	{
+		u.POST("/create", key.NewCreateHandler())
+	}
 }

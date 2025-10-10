@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"openserver/model"
 	"strings"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type ApiKeyRepo struct{}
@@ -119,21 +117,21 @@ func (r *ApiKeyRepo) Create(ctx context.Context, apiKey *model.ApiKey) error {
 	}
 	columns := []string{}
 	placeholders := []string{}
-	args := pgx.NamedArgs{}
+	args := []any{}
 	idx := 1
 	for k, v := range fieldMap {
 		if IsZeroValue(v) {
 			continue
 		}
 		columns = append(columns, k)
-		placeholders = append(placeholders, ":"+k)
-		args[k] = v
+		placeholders = append(placeholders, fmt.Sprintf("$%d", idx))
+		args = append(args, v)
 		idx++
 	}
 
 	sql := fmt.Sprintf("INSERT INTO api_keys (%s) VALUES (%s)",
 		strings.Join(columns, ", "),
 		strings.Join(placeholders, ", "))
-	_, err = conn.Exec(ctx, sql, args)
+	_, err = conn.Exec(ctx, sql, args...)
 	return err
 }

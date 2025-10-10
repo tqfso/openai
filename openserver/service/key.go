@@ -3,9 +3,12 @@ package service
 import (
 	"common/secure"
 	"context"
+	"errors"
 	"openserver/model"
 	"openserver/repository"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type ApiKeyService struct{}
@@ -53,7 +56,20 @@ func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, page, pag
 }
 
 // 创建密钥
-func (s *ApiKeyService) Create(ctx context.Context, workspaceID, description string, expiredAt *time.Time) (string, error) {
+func (s *ApiKeyService) Create(ctx context.Context, userID, workspaceID, description string, expiredAt *time.Time) (string, error) {
+
+	// 判断工作空间是否属于该用户
+	workspace, err := repository.Workspace().GetByID(ctx, workspaceID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			err = errors.New("workspace id not exists")
+		}
+		return "", err
+	}
+
+	if workspace.UserID != userID {
+		return "", errors.New("workspace id ownner error")
+	}
 
 	// 先随机生成，再加密存储
 
@@ -69,6 +85,7 @@ func (s *ApiKeyService) Create(ctx context.Context, workspaceID, description str
 
 	apiKey := &model.ApiKey{
 		ID:          cipherText,
+		UserID:      userID,
 		WorkspaceID: workspaceID,
 		Description: description,
 		ExpiresAt:   expiredAt,
