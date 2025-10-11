@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"openserver/model"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type WorkspaceRepo struct{}
@@ -24,6 +27,9 @@ func (r *WorkspaceRepo) GetByID(ctx context.Context, id string) (*model.Workspac
 	row := conn.QueryRow(ctx, `SELECT id, user_id, name, status, created_at, updated_at FROM workspaces WHERE id=$1`, id)
 	workspace := &model.Workspace{}
 	if err := row.Scan(&workspace.ID, &workspace.UserID, &workspace.Name, &workspace.Status, &workspace.CreatedAt, &workspace.UpdatedAt); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

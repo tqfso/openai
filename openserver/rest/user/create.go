@@ -18,6 +18,14 @@ type CreateRequest struct {
 	TokenLimit   int64  `json:"tokenLimit"`
 }
 
+func NewCreateHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := &CreateHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
+}
+
 func (h *CreateHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
@@ -26,13 +34,5 @@ func (h *CreateHandler) Handle() {
 	if err != nil {
 		h.SetError(common.GetErrorCode(err, common.UserCreateError), err.Error())
 		return
-	}
-}
-
-func NewCreateHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		h := &CreateHandler{}
-		h.SetTaskHandler(h)
-		h.OnRequest(c)
 	}
 }

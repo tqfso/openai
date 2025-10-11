@@ -16,6 +16,14 @@ type DeleteRequest struct {
 	ID string `form:"id" binding:"required"`
 }
 
+func NewDeleteHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := &DeleteHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
+}
+
 func (h *DeleteHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
@@ -23,13 +31,5 @@ func (h *DeleteHandler) Handle() {
 	if err := service.Workspace().Delete(ctx, req.ID, userId); err != nil {
 		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
 		return
-	}
-}
-
-func NewDeleteHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		h := &DeleteHandler{}
-		h.SetTaskHandler(h)
-		h.OnRequest(c)
 	}
 }

@@ -23,6 +23,14 @@ type CreateResponse struct {
 	ID string `json:"id"`
 }
 
+func NewCreateHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := &CreateHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
+}
+
 func (h *CreateHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
@@ -36,10 +44,3 @@ func (h *CreateHandler) Handle() {
 	h.SetResponseData(&CreateResponse{ID: id})
 }
 
-func NewCreateHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		h := &CreateHandler{}
-		h.SetTaskHandler(h)
-		h.OnRequest(c)
-	}
-}

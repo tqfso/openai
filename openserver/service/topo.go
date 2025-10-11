@@ -2,13 +2,10 @@ package service
 
 import (
 	"context"
-	"errors"
 	"openserver/client/resource"
 	"openserver/config"
 	"openserver/model"
 	"openserver/repository"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type TopoService struct{}
@@ -23,7 +20,11 @@ func (s *TopoService) FetchVpcID(ctx context.Context, topoID uint64) (uint64, er
 
 	topoRepo := repository.Topo()
 	topo, err := topoRepo.GetByID(ctx, topoID)
-	if errors.Is(err, pgx.ErrNoRows) {
+	if err != nil {
+		return 0, err
+	}
+
+	if topo == nil {
 
 		// 没有对应的记录，创建一个VPC并保存数据库
 
@@ -44,10 +45,6 @@ func (s *TopoService) FetchVpcID(ctx context.Context, topoID uint64) (uint64, er
 		}
 
 		return vpcId, nil
-	}
-
-	if err != nil {
-		return 0, err
 	}
 
 	return topo.VpcID, nil

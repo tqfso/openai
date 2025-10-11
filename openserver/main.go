@@ -77,8 +77,9 @@ func SetUserRouter(r *gin.Engine) {
 	}
 
 	{
-		u.POST("/v1/key/create", auth.ZUserAuthHander(), key.NewCreateHandler())
-		u.POST("/v1/key/delete", auth.ZUserAuthHander(), key.NewDeleteHandler())
+		r.POST("/v1/key/create", auth.ZUserAuthHander(), key.NewCreateHandler())
+		r.POST("/v1/key/delete", auth.ZUserAuthHander(), key.NewDeleteHandler())
+		r.GET("/v1/key/list", auth.ZUserAuthHander(), key.NewListHandler())
 	}
 }
 

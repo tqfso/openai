@@ -3,13 +3,11 @@ package service
 import (
 	"common"
 	"context"
-	"errors"
 	"fmt"
 	"openserver/model"
 	"openserver/repository"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
 type WorkspaceService struct{}
@@ -22,10 +20,11 @@ func Workspace() *WorkspaceService {
 func (s *WorkspaceService) FindByID(ctx context.Context, id string) (*model.Workspace, error) {
 	workspace, err := repository.Workspace().GetByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			err = &common.Error{Code: common.WorkspaceNotFound, Msg: "workspace not found"}
-		}
 		return nil, err
+	}
+
+	if workspace == nil {
+		return nil, &common.Error{Code: common.WorkspaceNotFound, Msg: "workspace not found"}
 	}
 
 	return workspace, nil

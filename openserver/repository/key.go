@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"openserver/model"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type ApiKeyRepo struct{}
@@ -35,56 +38,53 @@ func (r *ApiKeyRepo) GetByID(ctx context.Context, id string) (*model.ApiKey, err
 		&apiKey.CreatedAt,
 		&apiKey.UpdatedAt,
 	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return apiKey, nil
 }
 
-func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*model.ApiKey, int, error) {
+func (r *ApiKeyRepo) ListByUser(ctx context.Context, userID string, pageIndex, pageSize int) ([]*model.ApiKeyEx, int, error) {
 	conn, err := GetPool().Acquire(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
 	defer conn.Release()
 
-	if page <= 0 {
-		page = 1
-	}
-	if pageSize <= 0 {
-		pageSize = 10
-	}
-	offset := (page - 1) * pageSize
+	offset := (pageIndex - 1) * pageSize
 
-	where := []string{fmt.Sprintf("user_id=%s", userID)}
-
-	// 查询总数
-	countSQL := fmt.Sprintf("SELECT COUNT(*) FROM api_keys WHERE %s", strings.Join(where, " AND "))
+	// 参数化查询，防止SQL注入
+	countSQL := `SELECT COUNT(*) FROM api_keys WHERE user_id = $1`
 	var total int
-	if err := conn.QueryRow(ctx, countSQL).Scan(&total); err != nil {
+	if err := conn.QueryRow(ctx, countSQL, userID).Scan(&total); err != nil {
 		return nil, 0, err
 	}
 
-	// 查询分页数据（LIMIT 和 OFFSET 用 fmt.Sprintf 拼接）
-	sql := fmt.Sprintf(`
-        SELECT id, workspace_id, description, expires_at, created_at, updated_at
-        FROM api_keys
-        WHERE %s
-        ORDER BY created_at DESC
-        LIMIT %d OFFSET %d
-    `, strings.Join(where, " AND "), pageSize, offset)
+	querySQL := `
+        SELECT a.id, a.user_id, a.workspace_id, w.name AS workspace_name, a.description, a.expires_at, a.created_at, a.updated_at
+        FROM api_keys AS a
+        JOIN workspaces AS w ON a.workspace_id = w.id
+        WHERE a.user_id = $1
+        ORDER BY a.created_at DESC
+        LIMIT $2 OFFSET $3
+    `
 
-	rows, err := conn.Query(ctx, sql)
+	rows, err := conn.Query(ctx, querySQL, userID, pageSize, offset)
 	if err != nil {
 		return nil, 0, err
 	}
 	defer rows.Close()
 
-	var results []*model.ApiKey
+	var results []*model.ApiKeyEx
 	for rows.Next() {
-		apiKey := &model.ApiKey{}
+		apiKey := &model.ApiKeyEx{}
 		if err := rows.Scan(
 			&apiKey.ID,
+			&apiKey.UserID,
 			&apiKey.WorkspaceID,
+			&apiKey.WorkspaceName,
 			&apiKey.Description,
 			&apiKey.ExpiresAt,
 			&apiKey.CreatedAt,

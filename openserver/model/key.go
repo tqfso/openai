@@ -11,3 +11,8 @@ type ApiKey struct {
 	UpdatedAt   time.Time  `json:"updateAt"`
 	CreatedAt   time.Time  `json:"createAt"`
 }
+
+type ApiKeyEx struct {
+	ApiKey        `json:",inline"`
+	WorkspaceName string `json:"workspaceName,omitempty"`
+}

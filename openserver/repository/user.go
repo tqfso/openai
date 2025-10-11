@@ -3,6 +3,7 @@ package repository
 import (
 	"common"
 	"context"
+	"errors"
 	"fmt"
 	"openserver/model"
 	"strings"
@@ -41,6 +42,9 @@ func (r *UserRepo) GetByID(ctx context.Context, id string) (*model.User, error) 
 	row := conn.QueryRow(ctx, `SELECT id, nick_name, request_limit, token_limit, status, created_at, updated_at FROM users WHERE id=$1`, id)
 	user := &model.User{}
 	if err := row.Scan(&user.ID, &user.NickName, &user.RequestLimit, &user.TokenLimit, &user.Status, &user.CreatedAt, &user.UpdatedAt); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return user, nil

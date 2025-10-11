@@ -36,6 +36,14 @@ type ServiceLimit struct {
 	TokenLimit   int64  `json:"tokenLimit"`
 }
 
+func NewFindHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := &FindHandler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
+}
+
 func (h *FindHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
@@ -72,12 +80,4 @@ func (h *FindHandler) Handle() {
 
 	h.SetResponseData(response)
 
-}
-
-func NewFindHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		h := &FindHandler{}
-		h.SetTaskHandler(h)
-		h.OnRequest(c)
-	}
 }

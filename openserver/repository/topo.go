@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"openserver/model"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type TopoRepo struct{}
@@ -22,6 +25,9 @@ func (r *TopoRepo) GetByID(ctx context.Context, id uint64) (*model.Topo, error) 
 	row := conn.QueryRow(ctx, `SELECT id, status, created_at, updated_at FROM topo_domains WHERE id=$1`, id)
 	topo := &model.Topo{}
 	if err := row.Scan(&topo.ID, &topo.Status, &topo.CreatedAt, &topo.UpdatedAt); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return topo, nil

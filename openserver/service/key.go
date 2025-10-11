@@ -8,8 +8,6 @@ import (
 	"openserver/model"
 	"openserver/repository"
 	"time"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type ApiKeyService struct{}
@@ -28,10 +26,11 @@ func (s *ApiKeyService) FindByID(ctx context.Context, id string) (*model.ApiKey,
 
 	apiKey, err := repository.ApiKey().GetByID(ctx, cipherText)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			err = &common.Error{Code: common.ApiKeyNotFound, Msg: "API KEY not found"}
-		}
 		return nil, err
+	}
+
+	if apiKey == nil {
+		return nil, &common.Error{Code: common.ApiKeyNotFound, Msg: "API KEY not found"}
 	}
 
 	apiKey.ID = id
@@ -40,8 +39,8 @@ func (s *ApiKeyService) FindByID(ctx context.Context, id string) (*model.ApiKey,
 }
 
 // 查询用户密钥列表
-func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, page, pageSize int) ([]*model.ApiKey, int, error) {
-	apiKeys, totalCount, err := repository.ApiKey().ListByUser(ctx, userID, page, pageSize)
+func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, pageIndex, pageSize int) ([]*model.ApiKeyEx, int, error) {
+	apiKeys, totalCount, err := repository.ApiKey().ListByUser(ctx, userID, pageIndex, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}

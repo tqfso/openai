@@ -3,11 +3,8 @@ package service
 import (
 	"common"
 	"context"
-	"errors"
 	"openserver/model"
 	"openserver/repository"
-
-	"github.com/jackc/pgx/v5"
 )
 
 type UserService struct{}
@@ -20,10 +17,11 @@ func User() *UserService {
 func (s *UserService) FindByID(ctx context.Context, id string) (*model.User, error) {
 	user, err := repository.User().GetByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			err = &common.Error{Code: common.UserNotFound, Msg: "user not found"}
-		}
 		return nil, err
+	}
+
+	if user == nil {
+		return nil, &common.Error{Code: common.UserNotFound, Msg: "user not found"}
 	}
 
 	return user, nil

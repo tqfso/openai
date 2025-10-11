@@ -10,10 +10,6 @@ type NotFoundHandler struct {
 	Handler[any]
 }
 
-func (h *NotFoundHandler) Handle() {
-	h.SetError(common.HandlerNotFound, "not found handler")
-}
-
 func NewNotFoundHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		h := &NotFoundHandler{}
@@ -21,3 +17,8 @@ func NewNotFoundHandler() gin.HandlerFunc {
 		h.OnRequest(c)
 	}
 }
+
+func (h *NotFoundHandler) Handle() {
+	h.SetError(common.HandlerNotFound, "not found handler")
+}
+
