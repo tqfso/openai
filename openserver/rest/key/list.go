@@ -14,8 +14,8 @@ type ListHandler struct {
 }
 
 type ListRequest struct {
-	PageIndex int `json:"pageIndex"`
-	PageSize  int `json:"pageSize"`
+	PageIndex int `form:"pageIndex"`
+	PageSize  int `form:"pageSize"`
 }
 
 type ListResponse struct {

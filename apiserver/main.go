@@ -36,7 +36,7 @@ func main() {
 	r.Use(middleware.GinLogger(), middleware.GinRecovery())
 
 	// 分组路由
-	SetRoute(r)
+	SetRouter(r)
 
 	// 未找到路由
 	r.NoRoute(rest.NewNotFoundHandler())
@@ -48,14 +48,10 @@ func main() {
 
 }
 
-func SetRoute(r *gin.Engine) {
-	SetProxyRoute(r)
+func SetRouter(r *gin.Engine) {
+	SetProxyRouter(r)
 }
 
-func SetProxyRoute(r *gin.Engine) {
-
-	// 测试
-	proxy.CreateService("test", []string{"http://172.21.21.98:8000"})
-
+func SetProxyRouter(r *gin.Engine) {
 	r.Any("/*proxyPath", proxy.ReverseProxyHandler())
 }

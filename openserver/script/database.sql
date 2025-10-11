@@ -26,7 +26,7 @@ CREATE TABLE topo_domains (
 DROP TABLE IF EXISTS infer_engines;
 CREATE TABLE infer_engines (
     name TEXT PRIMARY KEY, -- 推理引擎名称: vllm-openai
-    framework TEXT NOT NULL, -- 推理引擎框架: vllm, slang, ollama, LMDeploy, huggingface
+    framework TEXT NOT NULL, -- 推理引擎框架: vllm, slang, ollama, LMDeploy, pt
     image TEXT NOT NULL, -- 镜像名称
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -38,18 +38,16 @@ DROP TABLE IF EXISTS platform_models;
 CREATE TABLE platform_models (
     name TEXT PRIMARY KEY, -- 模型名称如 Qwen/Qwen3-Reranker-8B
     provider TEXT, -- 深度求索、通义实验室等
-    languages TEXT[], -- 支持语言 ['zh', 'en']
     classes TEXT[] NOT NULL, -- 模型分类['文本生成', '图片生成', '语音识别']
-    extended_ability TEXT[], -- 扩展能力如: ['tools', 'thinking', 'batch', 'prompt caching']
+    extended_ability TEXT[], -- 扩展能力如: ['tools', 'thinking', 'struct', 'batch', 'prompt caching']
     max_context_length BIGINT NOT NULL, -- 最大上下文长度
 	deploy_info JSONB, -- 部署信息：支持的推理引擎列表(推理引擎、可用加速卡、运行命令、运行参数、环境变量等)
     finetune_info JSONB, -- 微调信息: 支持的训练引擎列表(微调引擎、可用加速卡、运行命令、运行参数、环境变量等)
-    status TEXT DEFAULT 'none', -- 状态: none, downloading, downloaded, enabled, disabled
+    status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     description TEXT, -- 描述
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-
 
 /* 模型服务表 */
 DROP TABLE IF EXISTS model_services;
@@ -60,24 +58,23 @@ CREATE TABLE model_services (
     model_name TEXT NOT NULL, -- 模型名称
 	model_path TEXT NOT NULL, -- 模型路径，可能用户自定义路径
     api_domain TEXT, -- API访问域名
-    user_id TEXT DEFAULT NULL, -- 用户ID
-	is_platform BOOLEAN GENERATED ALWAYS AS ((user_id IS NULL)) STORED,
+    api_service_id TEXT, -- API网关服务
+    user_id TEXT DEFAULT NULL, -- 用户ID，平台服务为空
     power BIGINT NOT NULL DEFAULT 0, -- 部署的算力
-    status TEXT DEFAULT 'none', -- 状态: none, uploading, creating, failed, running, stopped, released
+    status TEXT DEFAULT 'none', -- 状态: none, downloading, enabled, disabled
     heartbeat_at TIMESTAMPTZ, -- 上次心跳时间
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-/* API服务表 */
+/* API网关服务表 */
 DROP TABLE IF EXISTS api_services;
 CREATE TABLE api_services (
     id TEXT PRIMARY KEY, -- 网关服务ID，资源调度返回的服务ID
     topo_id BIGINT NOT NULL, -- 所属拓扑域
     public_ip INET NOT NULL, -- 公网IP
     access_key TEXT NOT NULL, -- 访问密钥
-    model_services JSONB, -- 注册的模型服务列表: [{service_id, model_name, instances[{status, ip, port}]}]
-    status TEXT DEFAULT 'none', -- 状态: none, creating, failed, running, stopped, released
+    model_services JSONB, -- 注册的模型服务列表: [{model_service_id, model_name, replicaes[{status, ip, port}]}]
     heartbeat_at TIMESTAMPTZ, -- 上次心跳时间
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
