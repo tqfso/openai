@@ -74,8 +74,6 @@ CREATE TABLE api_services (
     topo_id BIGINT NOT NULL, -- 所属拓扑域
     public_ip INET NOT NULL, -- 公网IP
     access_key TEXT NOT NULL, -- 访问密钥
-    model_services JSONB, -- 注册的模型服务列表: [{model_service_id, model_name, replicaes[{status, ip, port}]}]
-    heartbeat_at TIMESTAMPTZ, -- 上次心跳时间
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
