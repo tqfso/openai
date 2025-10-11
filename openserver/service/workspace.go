@@ -3,11 +3,13 @@ package service
 import (
 	"common"
 	"context"
+	"errors"
 	"fmt"
 	"openserver/model"
 	"openserver/repository"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type WorkspaceService struct{}
@@ -17,8 +19,16 @@ func Workspace() *WorkspaceService {
 }
 
 // 查询指定工作空间
-func (s *WorkspaceService) FindWorkspace(ctx context.Context, id string) (*model.Workspace, error) {
-	return repository.Workspace().GetByID(ctx, id)
+func (s *WorkspaceService) FindByID(ctx context.Context, id string) (*model.Workspace, error) {
+	workspace, err := repository.Workspace().GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			err = &common.Error{Code: common.WorkspaceNotFound, Msg: "workspace not found"}
+		}
+		return nil, err
+	}
+
+	return workspace, nil
 }
 
 // 查询用户工作空间列表
@@ -28,23 +38,17 @@ func (s *WorkspaceService) ListByUser(ctx context.Context, userID string) ([]*mo
 
 // 创建工作空间
 func (s *WorkspaceService) Create(ctx context.Context, userID, name string) (string, error) {
-
 	count, err := repository.Workspace().GetCountByUser(ctx, userID)
 	if err != nil {
 		return "", err
 	}
 
 	if count >= model.MaxWorkspaceCount {
-		return "", &common.Error{
-			Code: common.WorkspaceCountLimit,
-			Msg:  fmt.Sprintf("The workspace has reached the maximum number: %d", model.MaxWorkspaceCount),
-		}
+		return "", &common.Error{Code: common.WorkspaceCountLimit, Msg: fmt.Sprintf("The workspace has reached the maximum number: %d", model.MaxWorkspaceCount)}
 	}
 
-	u := uuid.New()
-
 	workspace := model.Workspace{
-		ID: u.String(),
+		ID:     uuid.New().String(),
 		UserID: userID,
 		Name:   name,
 	}
@@ -57,21 +61,25 @@ func (s *WorkspaceService) Delete(ctx context.Context, id string, userID string)
 	return repository.Workspace().Delete(ctx, id, userID)
 }
 
-// 授权模型服务
-func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceId, serviceId string) error {
+// 工作空间授权列表
+func (s *WorkspaceService) ListUsageLimits(ctx context.Context, workespaceID string) ([]*model.UsageLimit, error) {
+	return repository.UsageLimit().ListByWorkspaceID(ctx, workespaceID)
+}
 
+// 授权模型服务
+func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceID, serviceID string) error {
 	usageLimit := model.UsageLimit{
-		WorkspaceID: workspaceId,
-		ServiceID:   serviceId,
+		WorkspaceID: workspaceID,
+		ServiceID:   serviceID,
 	}
 	return repository.UsageLimit().Create(ctx, &usageLimit)
 }
 
 // 设置调用限制
-func (s *WorkspaceService) UpdateUsageLimit(ctx context.Context, workspaceId, serviceId string, requestLimit, tokenLimit int64) error {
+func (s *WorkspaceService) UpdateUsageLimit(ctx context.Context, workspaceID, serviceID string, requestLimit, tokenLimit int64) error {
 	usageLimit := model.UsageLimit{
-		WorkspaceID:  workspaceId,
-		ServiceID:    serviceId,
+		WorkspaceID:  workspaceID,
+		ServiceID:    serviceID,
 		RequestLimit: requestLimit,
 		TokenLimit:   tokenLimit,
 	}

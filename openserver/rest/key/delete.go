@@ -17,7 +17,6 @@ type DeleteRequest struct {
 }
 
 func (h *DeleteHandler) Handle() {
-
 	req := h.Request
 	ctx := h.GetContext()
 	userId := h.GetFromUser()

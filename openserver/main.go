@@ -50,7 +50,7 @@ func main() {
 	r.Use(middleware.GinLogger(), middleware.GinRecovery())
 
 	// 分组路由
-	SetRoute(r)
+	SetRouter(r)
 
 	// 未找到路由
 	r.NoRoute(rest.NewNotFoundHandler())
@@ -58,31 +58,35 @@ func main() {
 	r.Run(config.GetServer().ListenAddress())
 }
 
-func SetRoute(r *gin.Engine) {
-	SetUserRoute(r)
-	SetWorkspaceRoute(r)
-	SetApiKeyRoute(r)
+func SetRouter(r *gin.Engine) {
+	SetUserRouter(r)
+	SetGatewayRouter(r)
+	SetCloudRouter(r)
 }
 
-func SetUserRoute(r *gin.Engine) {
+func SetUserRouter(r *gin.Engine) {
 	u := r.Group("/v1/user", auth.ZUserAuthHander())
 	{
 		u.POST("/create", user.NewCreateHandler())
 	}
-}
 
-func SetWorkspaceRoute(r *gin.Engine) {
-	u := r.Group("/v1/workspace", auth.ZUserAuthHander())
+	u = r.Group("/v1/workspace", auth.ZUserAuthHander())
 	{
 		u.POST("/create", workspace.NewCreateHandler())
 		u.POST("/delete", workspace.NewDeleteHandler())
 	}
+
+	{
+		u.POST("/v1/key/create", auth.ZUserAuthHander(), key.NewCreateHandler())
+		u.POST("/v1/key/delete", auth.ZUserAuthHander(), key.NewDeleteHandler())
+	}
 }
 
-func SetApiKeyRoute(r *gin.Engine) {
-	u := r.Group("/v1/key", auth.ZUserAuthHander())
-	{
-		u.POST("/create", key.NewCreateHandler())
-		u.POST("/delete", key.NewDeleteHandler())
-	}
+func SetGatewayRouter(r *gin.Engine) {
+
+	r.GET("/v1/key/find", auth.ZGatewayAuthHander(), key.NewFindHandler())
+}
+
+func SetCloudRouter(r *gin.Engine) {
+
 }

@@ -107,7 +107,7 @@ CREATE TABLE workspaces (
     UNIQUE (user_id, name)
 );
 
-/* 调用限制 */
+/* 工作空间调用限制 */
 DROP TABLE IF EXISTS usage_limits;
 CREATE TABLE usage_limits (
     workspace_id TEXT NOT NULL, -- 所属工作空间ID

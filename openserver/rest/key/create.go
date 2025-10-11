@@ -24,7 +24,6 @@ type CreateResponse struct {
 }
 
 func (h *CreateHandler) Handle() {
-
 	req := h.Request
 	ctx := h.GetContext()
 	userId := h.GetFromUser()

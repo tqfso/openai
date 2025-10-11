@@ -1,6 +1,7 @@
 package service
 
 import (
+	"common"
 	"common/secure"
 	"context"
 	"errors"
@@ -20,17 +21,20 @@ func ApiKey() *ApiKeyService {
 // 查询指定密钥
 func (s *ApiKeyService) FindByID(ctx context.Context, id string) (*model.ApiKey, error) {
 
-	apiKey, err := repository.ApiKey().GetByID(ctx, id)
+	cipherText, err := secure.Encrypt(id)
 	if err != nil {
 		return nil, err
 	}
 
-	plainText, err := secure.Decrypt(apiKey.ID)
+	apiKey, err := repository.ApiKey().GetByID(ctx, cipherText)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			err = &common.Error{Code: common.ApiKeyNotFound, Msg: "API KEY not found"}
+		}
 		return nil, err
 	}
 
-	apiKey.ID = plainText
+	apiKey.ID = id
 
 	return apiKey, nil
 }
@@ -59,11 +63,8 @@ func (s *ApiKeyService) ListByUser(ctx context.Context, userID string, page, pag
 func (s *ApiKeyService) Create(ctx context.Context, userID, workspaceID, description string, expiredAt *time.Time) (string, error) {
 
 	// 判断工作空间是否属于该用户
-	workspace, err := repository.Workspace().GetByID(ctx, workspaceID)
+	workspace, err := Workspace().FindByID(ctx, workspaceID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			err = errors.New("workspace id not exists")
-		}
 		return "", err
 	}
 

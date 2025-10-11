@@ -45,7 +45,6 @@ func (h *Handler[T]) OnRequest(context *gin.Context) {
 
 	// 处理请求
 	if h.Task != nil {
-		defer h.checkPanic()
 		h.Task.Handle()
 	}
 
