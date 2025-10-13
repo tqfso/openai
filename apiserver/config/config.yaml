@@ -1,6 +1,10 @@
 server:
-  port: 80 # Server listening port
   host: "0.0.0.0" # Server listening address
+  port: 8443 # Server listening port
+
+openserver:
+  host: 10.10.16.146
+  port: 8080
 
 log:
   level: "debug" # Log level (debug, info, warn, error, dpanic, panic, fatal)

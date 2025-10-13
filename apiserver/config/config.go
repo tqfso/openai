@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -15,23 +14,13 @@ var (
 )
 
 type Config struct {
-	Log    logger.Config `yaml:"log"`
-	Server ServerConfig  `yaml:"server"`
-}
-
-type ServerConfig struct {
-	Port int    `yaml:"port"`
-	Host string `yaml:"host"`
+	Log logger.Config `yaml:"log"`
 }
 
 func (c *Config) Check() error {
 
 	if c.Log.Level == "" {
 		c.Log = logger.DefaultConfig()
-	}
-
-	if c.Server.Port <= 0 || c.Server.Port > 65535 {
-		return fmt.Errorf("invalid server port: %d", c.Server.Port)
 	}
 
 	return nil
@@ -43,10 +32,6 @@ func GetConfig() *Config {
 
 func GetLog() *logger.Config {
 	return &config.Log
-}
-
-func GetServer() *ServerConfig {
-	return &config.Server
 }
 
 func Load(filename string) error {

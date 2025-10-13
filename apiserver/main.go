@@ -15,11 +15,13 @@ import (
 func main() {
 
 	// 解析参数
-	cfgfile := flag.String("config", "config/config.yaml", "config from file")
+	configFileName := flag.String("config", "config/config.yaml", "config from file")
+	host := flag.String("host", "0.0.0.0", "listen ip")
+	port := flag.Int("port", 8080, "listen port")
 	flag.Parse()
 
 	// 初始化配置
-	if err := config.Load(*cfgfile); err != nil {
+	if err := config.Load(*configFileName); err != nil {
 		fmt.Println("Failed to load config:", err)
 		return
 	}
@@ -42,8 +44,7 @@ func main() {
 	r.NoRoute(rest.NewNotFoundHandler())
 
 	// 启动服务
-	serverconfig := config.GetServer()
-	serverAddress := fmt.Sprintf("%s:%d", serverconfig.Host, serverconfig.Port)
+	serverAddress := fmt.Sprintf("%s:%d", *host, *port)
 	r.Run(serverAddress)
 
 }
