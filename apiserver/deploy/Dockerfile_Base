@@ -22,7 +22,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# 第四步：安装 ModelScope 工具（来自阿里云官方 PyPI）
+RUN pip3 install --no-cache-dir modelscope
 
 # 验证
-RUN python3 --version && pip3 --version
+RUN python3 -c "import modelscope; print('ModelScope version:', modelscope.__version__)" && \
+    python3 --version && \
+    pip3 --version
