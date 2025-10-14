@@ -22,9 +22,9 @@ func (r *TopoRepo) GetByID(ctx context.Context, id uint64) (*model.Topo, error) 
 	}
 	defer conn.Release()
 
-	row := conn.QueryRow(ctx, `SELECT id, status, created_at, updated_at FROM topo_domains WHERE id=$1`, id)
+	row := conn.QueryRow(ctx, `SELECT id, vpc_id, created_at, updated_at FROM topo_domains WHERE id=$1`, id)
 	topo := &model.Topo{}
-	if err := row.Scan(&topo.ID, &topo.Status, &topo.CreatedAt, &topo.UpdatedAt); err != nil {
+	if err := row.Scan(&topo.ID, &topo.VpcID, &topo.CreatedAt, &topo.UpdatedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}

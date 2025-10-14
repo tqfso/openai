@@ -14,7 +14,7 @@ func ApiService() *ApiServiceRepo {
 	return &ApiServiceRepo{}
 }
 
-func (r *ApiServiceRepo) GetByTopoID(ctx context.Context, topoID string) (*model.ApiService, error) {
+func (r *ApiServiceRepo) GetByTopoID(ctx context.Context, topoID uint64) (*model.ApiService, error) {
 	conn, err := GetPool().Acquire(ctx)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (r *ApiServiceRepo) Create(ctx context.Context, apiService *model.ApiServic
 	}
 	defer conn.Release()
 
-	_, err = conn.Exec(ctx, `INSERT INTO api_services (id, topo_id, public_ip,) VALUES ($1, $2, $3)`, apiService.ID, apiService.TopoID, apiService.Name)
+	_, err = conn.Exec(ctx, `INSERT INTO api_services (id, topo_id, name) VALUES ($1, $2, $3)`, apiService.ID, apiService.TopoID, apiService.Name)
 
 	return err
 }

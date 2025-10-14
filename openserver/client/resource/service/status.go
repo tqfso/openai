@@ -1,6 +1,6 @@
 package service
 
-import "net"
+import "common/types"
 
 type StatusRequest struct {
 	Key string `form:"key"`
@@ -52,11 +52,11 @@ type BalanceService struct {
 }
 
 type EipInfo struct {
-	Gateway      net.IP    `json:"gateway,omitempty"`                                            // 网关地址
-	IP           net.IPNet `json:"ip,omitempty"`                                                 // 弹性公网地址(CIDR格式)
-	FlowStatsURL string    `json:"flowStatsURL,omitempty" validate:"omitempty,url"`              // 流量上报地址
-	Status       string    `json:"status,omitempty" validate:"omitempty,oneof=Enabled Disabled"` // 状态
-	BandWidth    uint64    `json:"bandWidth,omitempty"`                                          // 带宽峰值限制
+	Gateway      string           `json:"gateway,omitempty" binding:"required"`                        // 网关地址
+	IP           string           `json:"ip,omitempty" binding:"required"`                             // 弹性公网地址(CIDR格式)
+	FlowStatsURL string           `json:"flowStatsURL,omitempty" binding:"omitempty,url"`              // 流量上报地址
+	Status       string           `json:"status,omitempty" binding:"omitempty,oneof=Enabled Disabled"` // 状态
+	BandWidth    *types.BandWidth `json:"bandWidth,omitempty"`                                         // 带宽峰值限制
 }
 
 type EnvVar struct {

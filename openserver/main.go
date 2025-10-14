@@ -7,6 +7,7 @@ import (
 	"common/logger"
 	"openserver/config"
 	"openserver/middleware/auth"
+	"openserver/rest/apiservice"
 	"openserver/rest/key"
 	"openserver/rest/user"
 	"openserver/rest/workspace"
@@ -93,5 +94,8 @@ func SetGatewayRouter(r *gin.Engine) {
 }
 
 func SetCloudRouter(r *gin.Engine) {
-
+	u := r.Group("/v1/apiservice", auth.ZCloudAuthHander())
+	{
+		u.POST("/create", apiservice.NewCreateHandler())
+	}
 }
