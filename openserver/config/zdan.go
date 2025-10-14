@@ -11,6 +11,7 @@ type ZdanConfig struct {
 	CloudUserId   string `yaml:"cloudUserId"`
 	UserDmappId   string `yaml:"userDmappId"`
 	UserDmappKey  string `yaml:"userDmappKey"`
+	ApiServerKey  string `yaml:"apiServerKey"`
 	ZdanHost      string `yaml:"zdanHost"`
 	ZdanPort      string `yaml:"zdanPort"`
 }
@@ -35,6 +36,10 @@ func (c *ZdanConfig) Check() error {
 
 	if len(c.UserDmappKey) == 0 {
 		return fmt.Errorf("invalid user dmapp key")
+	}
+
+	if len(c.ApiServerKey) == 0 {
+		return fmt.Errorf("invalid api server key")
 	}
 
 	// 通过算力调度部署，使用环境变量覆盖

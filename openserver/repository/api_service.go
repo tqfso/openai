@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"net"
 	"openserver/model"
 
 	"github.com/jackc/pgx/v5"
@@ -23,7 +22,7 @@ func (r *ApiServiceRepo) GetByTopoID(ctx context.Context, topoID string) (*model
 	defer conn.Release()
 
 	row := conn.QueryRow(ctx, `
-		SELECT id, topo_id, public_ip, created_at, updated_at 
+		SELECT id, topo_id, name, created_at, updated_at 
 		FROM api_services 
 		WHERE topo_id = $1`, topoID)
 
@@ -31,7 +30,7 @@ func (r *ApiServiceRepo) GetByTopoID(ctx context.Context, topoID string) (*model
 	if err := row.Scan(
 		&apiService.ID,
 		&apiService.TopoID,
-		&apiService.PublicIP,
+		&apiService.Name,
 		&apiService.CreatedAt,
 		&apiService.UpdatedAt,
 	); err != nil {
@@ -43,7 +42,7 @@ func (r *ApiServiceRepo) GetByTopoID(ctx context.Context, topoID string) (*model
 	return apiService, nil
 }
 
-func (r *ApiServiceRepo) Create(ctx context.Context, topoID uint64, id string, ip net.IP) error {
+func (r *ApiServiceRepo) Create(ctx context.Context, apiService *model.ApiService) error {
 	pool := GetPool()
 	conn, err := pool.Acquire(ctx)
 	if err != nil {
@@ -51,7 +50,7 @@ func (r *ApiServiceRepo) Create(ctx context.Context, topoID uint64, id string, i
 	}
 	defer conn.Release()
 
-	_, err = conn.Exec(ctx, `INSERT INTO api_services (id, topo_id, public_ip,) VALUES ($1, $2, $3)`, id, topoID, ip)
+	_, err = conn.Exec(ctx, `INSERT INTO api_services (id, topo_id, public_ip,) VALUES ($1, $2, $3)`, apiService.ID, apiService.TopoID, apiService.Name)
 
 	return err
 }

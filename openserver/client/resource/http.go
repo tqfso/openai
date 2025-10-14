@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"common"
 	"common/logger"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -26,15 +27,15 @@ func (r *Response) IsSuccess() bool {
 	return r.Code == 0
 }
 
-func Get(endpoint string, param, resp any) error {
-	return do("GET", endpoint, param, nil, resp)
+func Get(ctx context.Context, endpoint string, param, resp any) error {
+	return do(ctx, "GET", endpoint, param, nil, resp)
 }
 
-func Post(endpoint string, data, resp any) error {
-	return do("POST", endpoint, nil, data, resp)
+func Post(ctx context.Context, endpoint string, data, resp any) error {
+	return do(ctx, "POST", endpoint, nil, data, resp)
 }
 
-func do(method, endpoint string, param, data, resp any) error {
+func do(ctx context.Context, method, endpoint string, param, data, resp any) error {
 
 	zdan := config.GetZdan()
 
@@ -72,7 +73,7 @@ func do(method, endpoint string, param, data, resp any) error {
 		reader = bytes.NewReader(jsonData)
 	}
 
-	req, err := http.NewRequest(method, url, reader)
+	req, err := http.NewRequestWithContext(ctx, method, url, reader)
 	if err != nil {
 		return err
 	}

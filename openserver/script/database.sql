@@ -71,8 +71,8 @@ CREATE TABLE model_services (
 DROP TABLE IF EXISTS api_services;
 CREATE TABLE api_services (
     id TEXT PRIMARY KEY, -- 网关服务ID，资源调度返回的服务ID
+    name TEXT UNIQUE NOT NULL, -- 名称
     topo_id BIGINT NOT NULL, -- 所属拓扑域
-    public_ip INET NOT NULL, -- 公网IP
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

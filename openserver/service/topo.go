@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"openserver/client/resource"
-	"openserver/config"
 	"openserver/model"
 	"openserver/repository"
 )
@@ -28,18 +27,12 @@ func (s *TopoService) FetchVpcID(ctx context.Context, topoID uint64) (uint64, er
 
 		// 没有对应的记录，创建一个VPC并保存数据库
 
-		request := map[string]any{
-			"topId":  topoID,
-			"userId": config.GetZdan().CloudUserId,
-		}
-
-		response := map[string]any{}
-		if err := resource.Post("v1/vpc/create", request, response); err != nil {
+		vpcId, err := resource.CreateVPC(ctx, uint32(topoID))
+		if err != nil {
 			return 0, err
 		}
 
-		vpcId := response["vpcId"].(uint64)
-		topo = &model.Topo{ID: topoID, VpcID: topo.VpcID}
+		topo = &model.Topo{ID: topoID, VpcID: vpcId}
 		if err := topoRepo.Add(ctx, topo); err != nil {
 			return 0, err
 		}

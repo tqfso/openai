@@ -1,5 +1,11 @@
 package service
 
+import "net"
+
+type StatusRequest struct {
+	Key string `form:"key"`
+}
+
 type StatusResponse struct {
 	Status         string                 `json:"status,omitempty"`
 	VpcId          uint64                 `json:"vpcId,omitempty"`
@@ -10,26 +16,11 @@ type StatusResponse struct {
 	Replicas       map[int]*ReplicaStatus `json:"replicas,omitempty"`
 	Service        *Service               `json:"service,omitempty"`
 	Balance        *Balance               `json:"balance,omitempty"`
+	EipInfo        *EipInfo               `json:"eipInfo,omitempty"`
 	Env            []EnvVar               `json:"env,omitempty"`
 	Mounts         []PathMount            `json:"mounts,omitempty"`
 	Command        []string               `json:"command,omitempty"`
 	Args           []string               `json:"args,omitempty"`
-}
-
-type StatusRequest struct {
-	Key string `form:"key"`
-}
-
-type EnvVar struct {
-	Name  string `json:"name"`
-	Value string `json:"value,omitempty"`
-}
-
-type PathMount struct {
-	Name          string `json:"name,omitempty"`
-	HostPath      string `json:"hostPath"`
-	ContainerPath string `json:"containerPath"`
-	ReadOnly      bool   `json:"readOnly"`
 }
 
 type ReplicaStatus struct {
@@ -58,4 +49,24 @@ type Balance struct {
 
 type BalanceService struct {
 	PortList []*ServicePort `json:"portList,omitempty"`
+}
+
+type EipInfo struct {
+	Gateway      net.IP    `json:"gateway,omitempty"`                                            // 网关地址
+	IP           net.IPNet `json:"ip,omitempty"`                                                 // 弹性公网地址(CIDR格式)
+	FlowStatsURL string    `json:"flowStatsURL,omitempty" validate:"omitempty,url"`              // 流量上报地址
+	Status       string    `json:"status,omitempty" validate:"omitempty,oneof=Enabled Disabled"` // 状态
+	BandWidth    uint64    `json:"bandWidth,omitempty"`                                          // 带宽峰值限制
+}
+
+type EnvVar struct {
+	Name  string `json:"name"`
+	Value string `json:"value,omitempty"`
+}
+
+type PathMount struct {
+	Name          string `json:"name,omitempty"`
+	HostPath      string `json:"hostPath"`
+	ContainerPath string `json:"containerPath"`
+	ReadOnly      bool   `json:"readOnly"`
 }

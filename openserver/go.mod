@@ -46,6 +46,7 @@ require (
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
 )
 
 replace common => ../common
