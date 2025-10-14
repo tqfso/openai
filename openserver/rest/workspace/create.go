@@ -34,7 +34,7 @@ func (h *CreateHandler) Handle() {
 	userId := h.GetFromUser()
 	id, err := service.Workspace().Create(ctx, userId, req.Name)
 	if err != nil {
-		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
+		h.SetErrorWithDefaultCode(err, common.Failure)
 		return
 	}
 

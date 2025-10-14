@@ -16,7 +16,7 @@ func main() {
 
 	// 解析参数
 	configFileName := flag.String("config", "config/config.yaml", "config from file")
-	host := flag.String("host", "0.0.0.0", "listen ip")
+	host := flag.String("host", "", "listen ip")
 	port := flag.Int("port", 8080, "listen port")
 	flag.Parse()
 

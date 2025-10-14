@@ -47,7 +47,7 @@ func (h *ListHandler) Handle() {
 
 	apiKeys, total, err := service.ApiKey().ListByUser(ctx, h.GetFromUser(), req.PageIndex, req.PageSize)
 	if err != nil {
-		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
+		h.SetErrorWithDefaultCode(err, common.Failure)
 		return
 	}
 

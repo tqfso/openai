@@ -32,7 +32,7 @@ func (h *CreateHandler) Handle() {
 	userId := h.GetFromUser()
 	err := service.User().Create(ctx, userId, req.NickName, req.RequestLimit, req.TokenLimit)
 	if err != nil {
-		h.SetError(common.GetErrorCode(err, common.UserCreateError), err.Error())
+		h.SetErrorWithDefaultCode(err, common.UserCreateError)
 		return
 	}
 }

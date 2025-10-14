@@ -14,7 +14,6 @@ var (
 
 type Config struct {
 	Log      logger.Config  `yaml:"log"`
-	Server   ServerConfig   `yaml:"server"`
 	Zdan     ZdanConfig     `yaml:"zdan"`
 	Database DatabaseConfig `yaml:"database"`
 }
@@ -23,10 +22,6 @@ func (c *Config) Check() error {
 
 	if c.Log.Level == "" {
 		c.Log = logger.DefaultConfig()
-	}
-
-	if err := c.Server.Check(); err != nil {
-		return err
 	}
 
 	if err := c.Zdan.Check(); err != nil {
@@ -46,10 +41,6 @@ func GetConfig() *Config {
 
 func GetLog() *logger.Config {
 	return &config.Log
-}
-
-func GetServer() *ServerConfig {
-	return &config.Server
 }
 
 func GetZdan() *ZdanConfig {

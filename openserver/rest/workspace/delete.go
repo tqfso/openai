@@ -29,7 +29,7 @@ func (h *DeleteHandler) Handle() {
 	ctx := h.GetContext()
 	userId := h.GetFromUser()
 	if err := service.Workspace().Delete(ctx, req.ID, userId); err != nil {
-		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
+		h.SetErrorWithDefaultCode(err, common.Failure)
 		return
 	}
 }

@@ -50,7 +50,7 @@ func (h *FindHandler) Handle() {
 
 	apiKey, err := service.ApiKey().FindByID(ctx, req.ID)
 	if err != nil {
-		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
+		h.SetErrorWithDefaultCode(err, common.Failure)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *FindHandler) Handle() {
 	if req.WithServiceLimit {
 		usageLimits, err := service.Workspace().ListUsageLimits(ctx, apiKey.WorkspaceID)
 		if err != nil {
-			h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
+			h.SetErrorWithDefaultCode(err, common.Failure)
 			return
 		}
 

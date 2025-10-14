@@ -21,11 +21,14 @@ import (
 func main() {
 
 	// 解析参数
-	cfgfile := flag.String("config", "config/config.yaml", "config from file")
+	configFileName := flag.String("config", "config/config.yaml", "config file name")
+	host := flag.String("host", "", "listen ip")
+	port := flag.Int("port", 8080, "listen port")
+
 	flag.Parse()
 
 	// 初始化配置
-	if err := config.Load(*cfgfile); err != nil {
+	if err := config.Load(*configFileName); err != nil {
 		fmt.Println("Failed to load config:", err)
 		return
 	}
@@ -55,7 +58,8 @@ func main() {
 	// 未找到路由
 	r.NoRoute(rest.NewNotFoundHandler())
 
-	r.Run(config.GetServer().ListenAddress())
+	serverAddress := fmt.Sprintf("%s:%d", *host, *port)
+	r.Run(serverAddress)
 }
 
 func SetRouter(r *gin.Engine) {

@@ -65,6 +65,18 @@ func (h *Handler[T]) SetError(code int, msg string) {
 	h.Response.Msg = msg
 }
 
+func (h *Handler[T]) SetErrorWithDefaultCode(err error, defaultCode int) {
+
+	result, ok := err.(*common.Error)
+	if !ok {
+		h.Response.Code = defaultCode
+	} else {
+		h.Response.Code = result.Code
+	}
+
+	h.Response.Msg = err.Error()
+}
+
 func (h *Handler[T]) SetStatusCode(statusCode int) {
 	h.StatusCode = statusCode
 }

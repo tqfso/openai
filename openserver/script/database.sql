@@ -57,8 +57,8 @@ CREATE TABLE model_services (
 	topo_id BIGINT NOT NULL, -- 所属拓扑域
     model_name TEXT NOT NULL, -- 模型名称
 	model_path TEXT NOT NULL, -- 模型路径，可能用户自定义路径
-    api_domain TEXT, -- API访问域名
-    api_service_id TEXT, -- API网关服务
+    api_domain TEXT NOT NULL, -- API访问域名
+    api_service_id TEXT NOT NULL, -- API网关服务
     user_id TEXT DEFAULT NULL, -- 用户ID，平台服务为空
     power BIGINT NOT NULL DEFAULT 0, -- 部署的算力
     status TEXT DEFAULT 'none', -- 状态: none, downloading, enabled, disabled
@@ -73,7 +73,6 @@ CREATE TABLE api_services (
     id TEXT PRIMARY KEY, -- 网关服务ID，资源调度返回的服务ID
     topo_id BIGINT NOT NULL, -- 所属拓扑域
     public_ip INET NOT NULL, -- 公网IP
-    access_key TEXT NOT NULL, -- 访问密钥
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

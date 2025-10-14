@@ -37,10 +37,9 @@ func (h *CreateHandler) Handle() {
 	userId := h.GetFromUser()
 	id, err := service.ApiKey().Create(ctx, userId, req.WorkspaceID, req.Description, req.ExpiresAt)
 	if err != nil {
-		h.SetError(common.GetErrorCode(err, common.Failure), err.Error())
+		h.SetErrorWithDefaultCode(err, common.Failure)
 		return
 	}
 
 	h.SetResponseData(&CreateResponse{ID: id})
 }
-
