@@ -27,4 +27,7 @@ func (r *PlatformModelService) Create(ctx context.Context, pm *model.PlatformMod
 	return repository.PlatformModel().Create(ctx, pm)
 }
 
-// 创建模型
+// 删除模型
+func (r *PlatformModelService) Delete(ctx context.Context, name string) error {
+	return repository.PlatformModel().Delete(ctx, name)
+}

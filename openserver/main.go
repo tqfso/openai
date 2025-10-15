@@ -104,6 +104,7 @@ func SetCloudRouter(r *gin.Engine) {
 	u = r.Group("/v1/pm", auth.ZCloudAuthHander())
 	{
 		u.POST("/create", platform_model.NewCreateHandler())
+		u.POST("/delete", platform_model.NewDeleteHandler())
 		u.GET("/list", platform_model.NewListHandler())
 	}
 }
