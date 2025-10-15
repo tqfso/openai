@@ -19,7 +19,7 @@ type CreateRequest struct {
 	Classes          []uint64          `json:"classes,omitempty" binding:"required"`
 	Abilities        []uint64          `json:"abilities,omitempty"`
 	MaxContextLength uint64            `json:"maxContextLength"`
-	DeployInfo       *model.DeployInfo `json:"deployInfo,omitempty"`
+	DeployInfo       *model.DeployInfo `json:"deployInfo,omitempty" binding:"required"`
 	Description      string            `json:"description,omitempty"`
 }
 

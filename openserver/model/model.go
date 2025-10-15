@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"common/types"
+	"time"
+)
 
 type PlatformModel struct {
 	Name             string      `json:"name"`
@@ -26,16 +29,19 @@ type PlatformModelSearchParam struct {
 }
 
 type InferEngine struct {
-	Name         string         `json:"name"`                   // 推理引擎
-	Env          []string       `json:"env,omitempty"`          // 环境变量
-	Command      []string       `json:"command,omitempty"`      // 命令
-	Args         []string       `json:"args,omitempty"`         // 参数
-	SuitableGpus []*SuitableGpu `json:"suitableGpus,omitempty"` // 合适的AI加速卡
+	Name         string          `json:"name" binding:"required"`                   // 推理引擎
+	Env          []string        `json:"env,omitempty"`                             // 环境变量
+	Command      []string        `json:"command,omitempty"`                         // 命令
+	Args         []string        `json:"args,omitempty"`                            // 参数
+	SuitableGpus []*SuitableGpu  `json:"suitableGpus,omitempty" binding:"required"` // 合适的AI加速卡
+	CpuCores     *types.Quantity `json:"cpuCores,omitempty"`
+	MemSizeLimit *types.Quantity `json:"memSizeLimit,omitempty"`
+	ShmSizeLimit *types.Quantity `json:"shmSizeLimit,omitempty"`
 }
 
 type SuitableGpu struct {
-	Name    string   `json:"name"`
-	Count   int      `json:"count"`
+	Name    string   `json:"name" binding:"required"`
+	Count   int      `json:"count" binding:"required"`
 	Env     []string `json:"env,omitempty"`
 	Command []string `json:"command,omitempty"`
 	Args    []string `json:"args,omitempty"`
@@ -43,5 +49,5 @@ type SuitableGpu struct {
 
 // 部署信息
 type DeployInfo struct {
-	InferEngines []*InferEngine `json:"inferEngines,omitempty"` // 合适的推理引擎
+	InferEngines []*InferEngine `json:"inferEngines,omitempty" binding:"required"` // 合适的推理引擎
 }

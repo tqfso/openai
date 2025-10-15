@@ -112,7 +112,7 @@ func (r *PlatformModelRepo) List(ctx context.Context, searchParams *model.Platfo
 	// select rows with pagination
 	selectSQL := fmt.Sprintf(`
 		SELECT
-			name, provider, classes, abilities, max_context_length, description, status, created_at, updated_at
+			name, provider, classes, abilities, max_context_length, deploy_info, description, status, created_at, updated_at
 		FROM platform_models
 		%s
 		ORDER BY created_at DESC
@@ -129,6 +129,7 @@ func (r *PlatformModelRepo) List(ctx context.Context, searchParams *model.Platfo
 
 	var results []*model.PlatformModel
 	for rows.Next() {
+		var deployInfoJSON []byte
 		var pm model.PlatformModel
 
 		if err := rows.Scan(
@@ -137,12 +138,21 @@ func (r *PlatformModelRepo) List(ctx context.Context, searchParams *model.Platfo
 			&pm.Classes,
 			&pm.Abilities,
 			&pm.MaxContextLength,
+			&deployInfoJSON,
 			&pm.Description,
 			&pm.Status,
 			&pm.CreatedAt,
 			&pm.UpdatedAt,
 		); err != nil {
 			return nil, 0, err
+		}
+
+		if deployInfoJSON != nil {
+			var deployInfo model.DeployInfo
+			if err := json.Unmarshal(deployInfoJSON, &deployInfo); err != nil {
+				return nil, 0, fmt.Errorf("failed to unmarshal deploy_info: %w", err)
+			}
+			pm.DeployInfo = &deployInfo
 		}
 
 		results = append(results, &pm)
