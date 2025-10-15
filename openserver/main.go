@@ -9,6 +9,7 @@ import (
 	"openserver/middleware/auth"
 	"openserver/rest/apiservice"
 	"openserver/rest/key"
+	"openserver/rest/platform_model"
 	"openserver/rest/user"
 	"openserver/rest/workspace"
 
@@ -90,7 +91,7 @@ func SetUserRouter(r *gin.Engine) {
 
 func SetGatewayRouter(r *gin.Engine) {
 
-	r.GET("/v1/key/find", auth.ZGatewayAuthHander(), key.NewFindHandler())
+	r.GET("/v1/key/info", auth.ZGatewayAuthHander(), key.NewInfoHandler())
 }
 
 func SetCloudRouter(r *gin.Engine) {
@@ -98,5 +99,10 @@ func SetCloudRouter(r *gin.Engine) {
 	{
 		u.POST("/create", apiservice.NewCreateHandler())
 		u.POST("/delete", apiservice.NewDeleteHandler())
+	}
+
+	u = r.Group("/v1/pm", auth.ZCloudAuthHander())
+	{
+		u.POST("/create", platform_model.NewCreateHandler())
 	}
 }

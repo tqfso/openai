@@ -11,16 +11,16 @@ import (
 
 // 查找API密钥，用于API网关调用
 
-type FindHandler struct {
-	rest.Handler[FindRequest]
+type InfoHandler struct {
+	rest.Handler[InfoRequest]
 }
 
-type FindRequest struct {
+type InfoRequest struct {
 	ID               string `form:"id" binding:"required"`
 	WithServiceLimit bool   `form:"withWorkspaceLimit"`
 }
 
-type FindResponse struct {
+type InfoResponse struct {
 	ID          string     `json:"id"`
 	UserID      string     `json:"userID"`
 	WorkspaceID string     `json:"workspaceID"`
@@ -36,15 +36,15 @@ type ServiceLimit struct {
 	TokenLimit   int64  `json:"tokenLimit"`
 }
 
-func NewFindHandler() gin.HandlerFunc {
+func NewInfoHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		h := &FindHandler{}
+		h := &InfoHandler{}
 		h.SetTaskHandler(h)
 		h.OnRequest(c)
 	}
 }
 
-func (h *FindHandler) Handle() {
+func (h *InfoHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
 
@@ -54,7 +54,7 @@ func (h *FindHandler) Handle() {
 		return
 	}
 
-	response := FindResponse{
+	response := InfoResponse{
 		ID:          apiKey.ID,
 		UserID:      apiKey.UserID,
 		WorkspaceID: apiKey.WorkspaceID,
