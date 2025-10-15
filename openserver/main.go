@@ -97,5 +97,6 @@ func SetCloudRouter(r *gin.Engine) {
 	u := r.Group("/v1/apiservice", auth.ZCloudAuthHander())
 	{
 		u.POST("/create", apiservice.NewCreateHandler())
+		u.POST("/delete", apiservice.NewDeleteHandler())
 	}
 }

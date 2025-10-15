@@ -51,7 +51,7 @@ func Create(ctx context.Context, req *CreateRequest) (string, error) {
 }
 
 func Release(ctx context.Context, id string) error {
-	var reqest ServiceID
+	reqest := ServiceID{Key: id}
 	if err := resource.Post(ctx, "v1/service/release", reqest, nil); err != nil {
 		return err
 	}

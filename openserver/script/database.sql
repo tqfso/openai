@@ -61,7 +61,7 @@ CREATE TABLE model_services (
     api_service_id TEXT NOT NULL, -- API网关服务
     user_id TEXT DEFAULT NULL, -- 用户ID，平台服务为空
     power BIGINT NOT NULL DEFAULT 0, -- 部署的算力
-    status TEXT DEFAULT 'none', -- 状态: none, downloading, enabled, disabled
+    status TEXT DEFAULT 'created', -- 状态: created, downloading, enabled, disabled
     heartbeat_at TIMESTAMPTZ, -- 上次心跳时间
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
