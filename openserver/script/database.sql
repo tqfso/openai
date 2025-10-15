@@ -26,25 +26,86 @@ CREATE TABLE topo_domains (
 DROP TABLE IF EXISTS infer_engines;
 CREATE TABLE infer_engines (
     name TEXT PRIMARY KEY, -- 推理引擎名称: vllm-openai
-    framework TEXT NOT NULL, -- 推理引擎框架: vllm, slang, ollama, LMDeploy, pt
+    framework TEXT NOT NULL, -- 推理引擎框架: Vllm, SLang, Ollama, LMDeploy, Pytorch
     image TEXT NOT NULL, -- 镜像名称
     status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+INSERT INTO infer_engines(name, framework, image) VALUES 
+('vllm-openai', 'Vllm', 'reasoning/vllm/vllm-openai:latest'),
+('zdan-qwenvl', 'Pytorch', 'reasoning/zdan/qwenvl:latest');
+
+/* 模型类型表 */
+DROP TABLE IF EXISTS model_classes;
+CREATE TABLE model_classes (
+    id BIGINT PRIMARY KEY,
+    name TEXT NOT NULL, -- 类别名称
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO model_classes (id, name) VALUES
+(1, '文本生成'),
+(2, '向量嵌入'),
+(3, '重排序'),
+(4, '视觉理解'),
+(5, '图像生成'),
+(6, '视频生成'),
+(7, '语音识别'),
+(8, '语音合成'),
+(9, '多模态模型'),
+(10, '深度思考');
+
+/* 模型提供商 */
+DROP TABLE IF EXISTS model_providers;
+CREATE TABLE model_providers (
+    id BIGINT PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO model_providers(id, name) VALUES
+(1, '通义千问'),
+(2, 'DeepSeek'),
+(3, '月之暗面'),
+(4, '智谱AI'),
+(5, 'Black Forest Labs'),
+(6, 'MiniMax'),
+(7, 'Stability AI');
+
+/* 模型扩展能力 */
+DROP TABLE IF EXISTS model_abilities;
+CREATE TABLE model_abilities (
+    id BIGINT PRIMARY KEY,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO model_abilities(id, name) VALUES
+(1, '工具调用'),
+(2, '结构化输出'),
+(3, 'Cache缓存'),
+(4, '批量推理'),
+(5, '模型体验'),
+(6, '模型调优'),
+(7, '联网搜索');
+
 /* 预置模型表*/
 DROP TABLE IF EXISTS platform_models;
 CREATE TABLE platform_models (
     name TEXT PRIMARY KEY, -- 模型名称如 Qwen/Qwen3-Reranker-8B
-    provider TEXT, -- 深度求索、通义实验室等
-    classes TEXT[] NOT NULL, -- 模型分类['文本生成', '图片生成', '语音识别']
-    extended_ability TEXT[], -- 扩展能力如: ['tools', 'thinking', 'struct', 'batch', 'prompt caching']
-    max_context_length BIGINT NOT NULL, -- 最大上下文长度
+    provider BIGINT NOT NULL, -- 深度求索、通义实验室等
+    classes BIGINT[] NOT NULL, -- 模型类型
+    abilities BIGINT[], -- 扩展能力
+    max_context_length BIGINT DEFAULT 0, -- 最大上下文长度
 	deploy_info JSONB, -- 部署信息：支持的推理引擎列表(推理引擎、可用加速卡、运行命令、运行参数、环境变量等)
     finetune_info JSONB, -- 微调信息: 支持的训练引擎列表(微调引擎、可用加速卡、运行命令、运行参数、环境变量等)
-    status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     description TEXT, -- 描述
+    status TEXT DEFAULT 'enabled', -- 状态: enabled, disabled
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
