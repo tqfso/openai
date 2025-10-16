@@ -33,7 +33,7 @@ func NewCreateHandler() gin.HandlerFunc {
 
 func (h *CreateHandler) Handle() {
 	req := &h.Request
-	apiSerivce := service.ApiService()
+	apiSerivce := service.Api()
 
 	found, err := apiSerivce.FindByTopoID(h.GetContext(), req.TopoID)
 	if err != nil {

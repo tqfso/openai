@@ -27,7 +27,7 @@ func NewDeleteHandler() gin.HandlerFunc {
 func (h *DeleteHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
-	if err := service.ApiService().Delete(ctx, req.ID); err != nil {
+	if err := service.Api().Delete(ctx, req.ID); err != nil {
 		h.SetErrorWithDefaultCode(err, common.Failure)
 		return
 	}

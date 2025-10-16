@@ -16,6 +16,8 @@ const (
 	WorkspaceCountLimit int = 2000 // 达到最大工作空间数量
 	WorkspaceNotFound   int = 2001 // 未找到工作空间
 	ApiKeyNotFound      int = 3000 // API密钥不存在
+	ApiServiceNotFound  int = 3001 // API网关不存在
+	PlatModelNotFound   int = 4000 // 没有对应的预置模型
 
 )
 

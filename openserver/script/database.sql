@@ -110,20 +110,16 @@ CREATE TABLE platform_models (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-/* 模型服务表 */
-DROP TABLE IF EXISTS model_services;
-CREATE TABLE model_services (
+/* 平台模型服务表 */
+DROP TABLE IF EXISTS platform_services;
+CREATE TABLE platform_services (
     id TEXT PRIMARY KEY, -- 模型服务ID，资源调度返回的服务ID
 	name TEXT NOT NULL, -- 服务名称
 	topo_id BIGINT NOT NULL, -- 所属拓扑域
     model_name TEXT NOT NULL, -- 模型名称
-	model_path TEXT NOT NULL, -- 模型路径，可能用户自定义路径
-    api_domain TEXT NOT NULL, -- API访问域名
     api_service_id TEXT NOT NULL, -- API网关服务
-    user_id TEXT DEFAULT NULL, -- 用户ID，平台服务为空
     power BIGINT NOT NULL DEFAULT 0, -- 部署的算力
-    status TEXT DEFAULT 'created', -- 状态: created, downloading, enabled, disabled
-    heartbeat_at TIMESTAMPTZ, -- 上次心跳时间
+    load BIGINT NOT NULL DEFAULT 0, -- 平均负载
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

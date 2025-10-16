@@ -9,17 +9,17 @@ import (
 	"openserver/repository"
 )
 
-type GatewayService struct{}
+type ApiService struct{}
 
-func ApiService() *GatewayService {
-	return &GatewayService{}
+func Api() *ApiService {
+	return &ApiService{}
 }
 
-func (s *GatewayService) FindByTopoID(ctx context.Context, topoID uint64) (*model.ApiService, error) {
+func (s *ApiService) FindByTopoID(ctx context.Context, topoID uint64) (*model.ApiService, error) {
 	return repository.ApiService().GetByTopoID(ctx, topoID)
 }
 
-func (s *GatewayService) Create(ctx context.Context, topoID uint64, name string, eipInfo *service.EipInfo) (string, error) {
+func (s *ApiService) Create(ctx context.Context, topoID uint64, name string, eipInfo *service.EipInfo) (string, error) {
 
 	// 获取私有网络
 
@@ -38,13 +38,13 @@ func (s *GatewayService) Create(ctx context.Context, topoID uint64, name string,
 		EipInfo:    eipInfo,
 	}
 
-	request.Mounts = []service.PathMount{
-		{
-			Name:          "models",
-			HostPath:      "/mnt/cephfs/openai/models",
-			ContainerPath: "/models",
-		},
-	}
+	// request.Mounts = []service.PathMount{
+	// 	{
+	// 		Name:          "models",
+	// 		HostPath:      "/mnt/cephfs/openai/models",
+	// 		ContainerPath: "/models",
+	// 	},
+	// }
 
 	serviceID, err := service.Create(ctx, &request)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *GatewayService) Create(ctx context.Context, topoID uint64, name string,
 	return serviceID, repository.ApiService().Create(ctx, &apiService)
 }
 
-func (s *GatewayService) Delete(ctx context.Context, id string) error {
+func (s *ApiService) Delete(ctx context.Context, id string) error {
 	if err := service.Release(ctx, id); err != nil {
 		return err
 	}
