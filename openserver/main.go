@@ -7,8 +7,8 @@ import (
 	"common/logger"
 	"openserver/config"
 	"openserver/middleware/auth"
-	"openserver/rest/apiservice"
-	"openserver/rest/key"
+	"openserver/rest/api_service"
+	"openserver/rest/api_key"
 	"openserver/rest/platform_model"
 	"openserver/rest/platform_service"
 	"openserver/rest/user"
@@ -84,22 +84,22 @@ func SetUserRouter(r *gin.Engine) {
 	}
 
 	{
-		r.POST("/v1/key/create", auth.ZUserAuthHander(), key.NewCreateHandler())
-		r.POST("/v1/key/delete", auth.ZUserAuthHander(), key.NewDeleteHandler())
-		r.GET("/v1/key/list", auth.ZUserAuthHander(), key.NewListHandler())
+		r.POST("/v1/key/create", auth.ZUserAuthHander(), api_key.NewCreateHandler())
+		r.POST("/v1/key/delete", auth.ZUserAuthHander(), api_key.NewDeleteHandler())
+		r.GET("/v1/key/list", auth.ZUserAuthHander(), api_key.NewListHandler())
 	}
 }
 
 func SetGatewayRouter(r *gin.Engine) {
 
-	r.GET("/v1/key/info", auth.ZGatewayAuthHander(), key.NewInfoHandler())
+	r.GET("/v1/key/info", auth.ZGatewayAuthHander(), api_key.NewInfoHandler())
 }
 
 func SetCloudRouter(r *gin.Engine) {
 	u := r.Group("/v1/apiservice", auth.ZCloudAuthHander())
 	{
-		u.POST("/create", apiservice.NewCreateHandler())
-		u.POST("/delete", apiservice.NewDeleteHandler())
+		u.POST("/create", api_service.NewCreateHandler())
+		u.POST("/delete", api_service.NewDeleteHandler())
 	}
 
 	u = r.Group("/v1/pm", auth.ZCloudAuthHander())
