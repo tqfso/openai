@@ -19,6 +19,11 @@ func PlatformService() *PlatformServiceDefault {
 	return &PlatformServiceDefault{}
 }
 
+// 获取API网关负责的模型服务列表
+func (s *PlatformServiceDefault) ListByGateway(ctx context.Context, apiServiceID string) ([]*model.PlatformService, error) {
+	return repository.PlatormService().ListByGateway(ctx, apiServiceID)
+}
+
 func (s *PlatformServiceDefault) Create(ctx context.Context, topoID uint64, serviceName, modelName string) (string, error) {
 
 	// 获取拓扑域AIP网关

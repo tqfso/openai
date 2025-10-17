@@ -1,4 +1,4 @@
-package api_key
+package gateway
 
 import (
 	"common"
@@ -11,39 +11,39 @@ import (
 
 // 查找API密钥，用于API网关调用
 
-type InfoHandler struct {
-	rest.Handler[InfoRequest]
+type KeyInfoHandler struct {
+	rest.Handler[KeyInfoRequest]
 }
 
-type InfoRequest struct {
+type KeyInfoRequest struct {
 	ID             string `form:"id" binding:"required"`
 	WithUsageLimit bool   `form:"withUsageLimit"`
 }
 
-type InfoResponse struct {
+type KeyInfoResponse struct {
 	ID          string       `json:"id"`
 	UserID      string       `json:"userID"`
 	WorkspaceID string       `json:"workspaceID"`
 	Description string       `json:"description,omitempty"`
 	ExpiresAt   *time.Time   `json:"expiresAt,omitempty"`
-	UsageLimits []UsageLimit `json:"usageLimits,omitempty"`
+	UsageLimits []KeyUsageLimit `json:"usageLimits,omitempty"`
 }
 
-type UsageLimit struct {
+type KeyUsageLimit struct {
 	ModelName    string `json:"modelName"`
 	RequestLimit int64  `json:"requestLimit"`
 	TokenLimit   int64  `json:"tokenLimit"`
 }
 
-func NewInfoHandler() gin.HandlerFunc {
+func NewKeyInfoHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		h := &InfoHandler{}
+		h := &KeyInfoHandler{}
 		h.SetTaskHandler(h)
 		h.OnRequest(c)
 	}
 }
 
-func (h *InfoHandler) Handle() {
+func (h *KeyInfoHandler) Handle() {
 	req := h.Request
 	ctx := h.GetContext()
 
@@ -53,7 +53,7 @@ func (h *InfoHandler) Handle() {
 		return
 	}
 
-	response := InfoResponse{
+	response := KeyInfoResponse{
 		ID:          apiKey.ID,
 		UserID:      apiKey.UserID,
 		WorkspaceID: apiKey.WorkspaceID,
@@ -69,7 +69,7 @@ func (h *InfoHandler) Handle() {
 		}
 
 		for _, usageLimit := range usageLimits {
-			response.UsageLimits = append(response.UsageLimits, UsageLimit{
+			response.UsageLimits = append(response.UsageLimits, KeyUsageLimit{
 				ModelName:    usageLimit.ModelName,
 				RequestLimit: usageLimit.RequestLimit,
 				TokenLimit:   usageLimit.TokenLimit,
