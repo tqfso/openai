@@ -16,21 +16,20 @@ type InfoHandler struct {
 }
 
 type InfoRequest struct {
-	ID               string `form:"id" binding:"required"`
-	WithServiceLimit bool   `form:"withWorkspaceLimit"`
+	ID             string `form:"id" binding:"required"`
+	WithUsageLimit bool   `form:"withUsageLimit"`
 }
 
 type InfoResponse struct {
-	ID          string     `json:"id"`
-	UserID      string     `json:"userID"`
-	WorkspaceID string     `json:"workspaceID"`
-	Description string     `json:"description,omitempty"`
-	ExpiresAt   *time.Time `json:"expiresAt,omitempty"`
-
-	ServiceLimits []ServiceLimit `json:"serviceLimits,omitempty"`
+	ID          string       `json:"id"`
+	UserID      string       `json:"userID"`
+	WorkspaceID string       `json:"workspaceID"`
+	Description string       `json:"description,omitempty"`
+	ExpiresAt   *time.Time   `json:"expiresAt,omitempty"`
+	UsageLimits []UsageLimit `json:"usageLimits,omitempty"`
 }
 
-type ServiceLimit struct {
+type UsageLimit struct {
 	ModelName    string `json:"modelName"`
 	RequestLimit int64  `json:"requestLimit"`
 	TokenLimit   int64  `json:"tokenLimit"`
@@ -62,7 +61,7 @@ func (h *InfoHandler) Handle() {
 		Description: apiKey.Description,
 	}
 
-	if req.WithServiceLimit {
+	if req.WithUsageLimit {
 		usageLimits, err := service.Workspace().ListUsageLimits(ctx, apiKey.WorkspaceID)
 		if err != nil {
 			h.SetErrorWithDefaultCode(err, common.Failure)
@@ -70,7 +69,7 @@ func (h *InfoHandler) Handle() {
 		}
 
 		for _, usageLimit := range usageLimits {
-			response.ServiceLimits = append(response.ServiceLimits, ServiceLimit{
+			response.UsageLimits = append(response.UsageLimits, UsageLimit{
 				ModelName:    usageLimit.ModelName,
 				RequestLimit: usageLimit.RequestLimit,
 				TokenLimit:   usageLimit.TokenLimit,

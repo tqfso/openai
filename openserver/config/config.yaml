@@ -16,7 +16,7 @@ zdan:
   cloudUserId: "Ztwv2hV14r2smkZ3WXYQFFj6sY6gjguuEZ" # 零极云管理员工ID
   userDmappId: "2A5D8B89CB49D2AD0325F3E419FEC31F2D218EA2" # 零极云开放平台ID
   userDmappKey: "H5ahKWk20AAjEyma3b33Ir45z4AAed5dRZt6s2LrdCg=" # 零极云开放平台密钥
-  apiServerKey: "H5ahKWk20AAjEyma3b33Ir45z4AAed5dRZt6s2LrdCg=" # API网关访问密钥
+  apiServerKey: "sk-AnxkuFzRpmZq87Uydk6RCM1fbqQkv1WE" # API网关访问密钥
 
 database:
   host: "192.168.3.181" # Database host
