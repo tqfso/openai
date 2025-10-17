@@ -10,6 +10,7 @@ import (
 	"openserver/rest/apiservice"
 	"openserver/rest/key"
 	"openserver/rest/platform_model"
+	"openserver/rest/platform_service"
 	"openserver/rest/user"
 	"openserver/rest/workspace"
 
@@ -106,5 +107,11 @@ func SetCloudRouter(r *gin.Engine) {
 		u.POST("/create", platform_model.NewCreateHandler())
 		u.POST("/delete", platform_model.NewDeleteHandler())
 		u.GET("/list", platform_model.NewListHandler())
+	}
+
+	u = r.Group("/v1/ps", auth.ZCloudAuthHander())
+	{
+		u.POST("/deploy", platform_service.NewDeployHandler())
+		u.POST("/release", platform_service.NewReleaseHandler())
 	}
 }

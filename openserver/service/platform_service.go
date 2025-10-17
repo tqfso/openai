@@ -9,33 +9,34 @@ import (
 	"openserver/config"
 	"openserver/model"
 	"openserver/repository"
-	"path"
 )
 
-type PlatformService struct{}
-
-func Platform() *PlatformService {
-	return &PlatformService{}
+type PlatformServiceDefault struct {
+	EipInfo *service.EipInfo // 调试
 }
 
-func (s *PlatformService) Create(ctx context.Context, topoID uint64, serviceName, modelName string) error {
+func PlatformService() *PlatformServiceDefault {
+	return &PlatformServiceDefault{}
+}
+
+func (s *PlatformServiceDefault) Create(ctx context.Context, topoID uint64, serviceName, modelName string) (string, error) {
 
 	// 获取拓扑域AIP网关
 
 	apiService, err := Api().FindByTopoID(ctx, topoID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if apiService == nil {
-		return &common.Error{Code: common.ApiServiceNotFound, Msg: "api gateway not found"}
+		return "", &common.Error{Code: common.ApiServiceNotFound, Msg: "api gateway not found"}
 	}
 
 	// 创建平台模型服务
 
 	serviceID, err := s.createService(ctx, topoID, modelName)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// 保存平台模型服务
@@ -43,16 +44,19 @@ func (s *PlatformService) Create(ctx context.Context, topoID uint64, serviceName
 	platformService := &model.PlatformService{
 		ID:           serviceID,
 		TopoID:       topoID,
-		ApiServiceID: apiService.ID,
 		Name:         serviceName,
 		ModelName:    modelName,
+		ApiServiceID: apiService.ID,
 	}
 
-	return repository.PlatormService().Create(ctx, platformService)
+	if err := repository.PlatormService().Create(ctx, platformService); err != nil {
+		return "", err
+	}
 
+	return serviceID, nil
 }
 
-func (s *PlatformService) createService(ctx context.Context, topoID uint64, modelName string) (string, error) {
+func (s *PlatformServiceDefault) createService(ctx context.Context, topoID uint64, modelName string) (string, error) {
 
 	// 获取平台预置模型信息
 
@@ -109,20 +113,27 @@ func (s *PlatformService) createService(ctx context.Context, topoID uint64, mode
 		ShmSizeLimit: inferInfo.ShmSizeLimit,
 		GpuModel:     inferGpu.Name,
 		GpuCount:     types.NewQuantity(int64(inferGpu.Count), types.DecimalExponent),
+		EipInfo:      s.EipInfo,
 	}
 
-	if inferInfo.ModelPath == "" {
-		inferInfo.ModelPath = "/models"
+	request.Mounts = append(request.Mounts, inferInfo.Mounts...)
+	if len(request.Mounts) == 0 {
+		request.Mounts = []service.PathMount{
+			{
+				Name:          "model",
+				HostPath:      fmt.Sprintf("/mnt/cephfs/openai/models/%s", modelName),
+				ContainerPath: fmt.Sprintf("/models/%s", modelName),
+				ReadOnly:      true,
+			},
+		}
 	}
 
-	request.Mounts = []service.PathMount{
-		{
-			Name:          "models",
-			HostPath:      fmt.Sprintf("/mnt/cephfs/openai/models/%s", modelName),
-			ContainerPath: path.Join(inferInfo.ModelPath, modelName),
-			ReadOnly:      true,
-		},
-	}
+	request.Env = append(request.Env, inferInfo.Env...)
+	request.Env = append(request.Env, inferGpu.Env...)
+	request.Command = append(request.Command, inferInfo.Command...)
+	request.Command = append(request.Command, inferGpu.Command...)
+	request.Args = append(request.Args, inferInfo.Args...)
+	request.Args = append(request.Args, inferGpu.Args...)
 
 	serviceID, err := service.Create(ctx, &request)
 	if err != nil {
@@ -131,4 +142,11 @@ func (s *PlatformService) createService(ctx context.Context, topoID uint64, mode
 
 	return serviceID, nil
 
+}
+
+func (s *PlatformServiceDefault) Release(ctx context.Context, id string) error {
+	if err := service.Release(ctx, id); err != nil {
+		return err
+	}
+	return repository.PlatormService().Delete(ctx, id)
 }

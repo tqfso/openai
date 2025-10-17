@@ -23,7 +23,7 @@ func (r *InferEngineRepo) GetByName(ctx context.Context, name string) (*model.In
 
 	row := conn.QueryRow(ctx, `
 		SELECT name, framework, image, status, created_at, updated_at 
-		FROM api_keys 
+		FROM infer_engines 
 		WHERE name = $1`, name)
 
 	inferEngine := &model.InferEngine{}

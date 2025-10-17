@@ -23,6 +23,7 @@ func (r *PlatformServiceRepo) Create(ctx context.Context, modelService *model.Pl
 	_, err = conn.Exec(ctx, `INSERT INTO platform_services (id, name, topo_id, model_name, api_service_id, power, load) 
 							VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		modelService.ID,
+		modelService.Name,
 		modelService.TopoID,
 		modelService.ModelName,
 		modelService.ApiServiceID,

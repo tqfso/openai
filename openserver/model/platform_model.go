@@ -30,15 +30,15 @@ type PlatformModelSearchParam struct {
 }
 
 type InferInfo struct {
-	Name         string           `json:"name" binding:"required"`                   // 推理引擎
-	CpuCores     *types.Quantity  `json:"cpuCores,omitempty"`                        // CPU核数
-	MemSizeLimit *types.Quantity  `json:"memSizeLimit,omitempty"`                    // 内存大小
-	ShmSizeLimit *types.Quantity  `json:"shmSizeLimit,omitempty"`                    // 共享内存大小
-	ModelPath    string           `json:"modelPath,omitempty"`                       // 模型挂载目录
-	Env          []service.EnvVar `json:"env,omitempty"`                             // 环境变量
-	Command      []string         `json:"command,omitempty"`                         // 命令
-	Args         []string         `json:"args,omitempty"`                            // 参数
-	SuitableGpus []*SuitableGpu   `json:"suitableGpus,omitempty" binding:"required"` // 合适的AI加速卡
+	Name         string              `json:"name" binding:"required"`                   // 推理引擎
+	CpuCores     *types.Quantity     `json:"cpuCores,omitempty"`                        // CPU核数
+	MemSizeLimit *types.Quantity     `json:"memSizeLimit,omitempty"`                    // 内存大小
+	ShmSizeLimit *types.Quantity     `json:"shmSizeLimit,omitempty"`                    // 共享内存大小
+	Mounts       []service.PathMount `json:"mounts,omitempty"`                          // 模型挂载目录
+	Env          []service.EnvVar    `json:"env,omitempty"`                             // 环境变量
+	Command      []string            `json:"command,omitempty"`                         // 命令
+	Args         []string            `json:"args,omitempty"`                            // 参数
+	SuitableGpus []*SuitableGpu      `json:"suitableGpus,omitempty" binding:"required"` // 合适的AI加速卡
 }
 
 type SuitableGpu struct {
