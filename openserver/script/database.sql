@@ -162,12 +162,12 @@ CREATE TABLE workspaces (
 DROP TABLE IF EXISTS usage_limits;
 CREATE TABLE usage_limits (
     workspace_id TEXT NOT NULL, -- 所属工作空间ID
-    service_id TEXT NOT NULL, -- 模型服务ID
+    model_name TEXT NOT NULL, -- 模型服务名称
     request_limit BIGINT NOT NULL, -- 请求数限流（次/分钟）
     token_limit BIGINT NOT NULL,  -- Token限流（Tokens/分钟）
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    PRIMARY KEY (workspace_id, service_id)
+    PRIMARY KEY (workspace_id, model_name)
 );
 
 /* API密钥表 */
@@ -187,14 +187,14 @@ CREATE TABLE api_keys (
 DROP TABLE IF EXISTS usage_logs;
 CREATE TABLE usage_logs (
     id BIGSERIAL,
-    key_hash TEXT NOT NULL, -- 调用密钥
+    api_key TEXT NOT NULL, -- 调用密钥
     user_id TEXT NOT NULL, -- 用户ID
     service_id BIGINT NOT NULL, -- 服务ID
     occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), -- 精确到毫秒
     status SMALLINT DEFAULT 0, -- 调用状态
     input_tokens BIGINT DEFAULT 0, -- 输入token数量
     output_tokens BIGINT DEFAULT 0, -- 输出token数量
-	response_time_ms INT NOT NULL,  -- 响应耗时（毫秒）
+	response_time_ms INT NOT NULL,  -- 响应耗时(毫秒)
     PRIMARY KEY (id, occurred_at)
 );
 

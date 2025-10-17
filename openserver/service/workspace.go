@@ -65,22 +65,24 @@ func (s *WorkspaceService) ListUsageLimits(ctx context.Context, workespaceID str
 	return repository.UsageLimit().ListByWorkspaceID(ctx, workespaceID)
 }
 
-// 授权模型服务
-func (s *WorkspaceService) CreateUsageLimit(ctx context.Context, workspaceID, serviceID string) error {
-	usageLimit := model.UsageLimit{
-		WorkspaceID: workspaceID,
-		ServiceID:   serviceID,
+// 授权调用
+func (s *WorkspaceService) GrantModel(ctx context.Context, usageLimit *model.UsageLimit) error {
+	usageLimitRepo := repository.UsageLimit()
+	usageLimitFound, err := usageLimitRepo.GetByID(ctx, usageLimit.WorkspaceID, usageLimit.ModelName)
+	if err != nil {
+		return err
 	}
-	return repository.UsageLimit().Create(ctx, &usageLimit)
+
+	if usageLimitFound == nil {
+		err = usageLimitRepo.Create(ctx, usageLimit)
+	} else {
+		err = usageLimitRepo.Update(ctx, usageLimit)
+	}
+
+	return err
 }
 
-// 设置调用限制
-func (s *WorkspaceService) UpdateUsageLimit(ctx context.Context, workspaceID, serviceID string, requestLimit, tokenLimit int64) error {
-	usageLimit := model.UsageLimit{
-		WorkspaceID:  workspaceID,
-		ServiceID:    serviceID,
-		RequestLimit: requestLimit,
-		TokenLimit:   tokenLimit,
-	}
-	return repository.UsageLimit().Update(ctx, &usageLimit)
+// 删除授权
+func (s *WorkspaceService) CancelModel(ctx context.Context, workspaceID, modelName string) error {
+	return repository.UsageLimit().Delete(ctx, workspaceID, modelName)
 }

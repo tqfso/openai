@@ -7,8 +7,8 @@ import (
 	"common/logger"
 	"openserver/config"
 	"openserver/middleware/auth"
-	"openserver/rest/api_service"
 	"openserver/rest/api_key"
+	"openserver/rest/api_service"
 	"openserver/rest/platform_model"
 	"openserver/rest/platform_service"
 	"openserver/rest/user"
@@ -81,6 +81,9 @@ func SetUserRouter(r *gin.Engine) {
 	{
 		u.POST("/create", workspace.NewCreateHandler())
 		u.POST("/delete", workspace.NewDeleteHandler())
+
+		u.POST("/grant_model", workspace.NewGrantModelHandler())
+		u.POST("/cancel_model", workspace.NewCancelModelHandler())
 	}
 
 	{

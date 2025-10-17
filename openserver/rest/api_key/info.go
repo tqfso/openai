@@ -31,7 +31,7 @@ type InfoResponse struct {
 }
 
 type ServiceLimit struct {
-	ServiceID    string `json:"serviceID"`
+	ModelName    string `json:"modelName"`
 	RequestLimit int64  `json:"requestLimit"`
 	TokenLimit   int64  `json:"tokenLimit"`
 }
@@ -71,7 +71,7 @@ func (h *InfoHandler) Handle() {
 
 		for _, usageLimit := range usageLimits {
 			response.ServiceLimits = append(response.ServiceLimits, ServiceLimit{
-				ServiceID:    usageLimit.ServiceID,
+				ModelName:    usageLimit.ModelName,
 				RequestLimit: usageLimit.RequestLimit,
 				TokenLimit:   usageLimit.TokenLimit,
 			})
