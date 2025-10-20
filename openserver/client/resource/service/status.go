@@ -13,7 +13,7 @@ type StatusRequest struct {
 
 type StatusResponse struct {
 	Status         string                 `json:"status,omitempty"`
-	VpcId          string                 `json:"vpcId,omitempty"`
+	VpcId          types.VpcID            `json:"vpcId,omitempty"`
 	ExportPort     uint16                 `json:"exportPort,omitempty"`
 	AccessDomain   string                 `json:"accessDomain,omitempty"`
 	AccessPort     uint16                 `json:"accessPort,omitempty"`
@@ -89,7 +89,7 @@ func GetStatus(ctx context.Context, id string) (*StatusResponse, error) {
 
 	param := ServiceID{Key: id}
 	var resp StatusResponse
-	if err := resource.Get(ctx, "v1/service/status", param, &resp); err != nil {
+	if err := resource.Get(ctx, "/v1/service/status", param, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"openserver/config"
 	"openserver/middleware/auth"
 	"time"
@@ -41,6 +42,11 @@ func Post(ctx context.Context, endpoint string, data, resp any) error {
 func do(ctx context.Context, method, endpoint string, param, data, resp any) error {
 
 	zdan := config.GetZdan()
+	baseUrl := fmt.Sprintf("https://%s/zresource", zdan.Address())
+	fullUrl, err := url.JoinPath(baseUrl, endpoint)
+	if err != nil {
+		return err
+	}
 
 	client := &http.Client{
 		Timeout:   15 * time.Second,
@@ -49,19 +55,16 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 
 	// 构建请求参数
 
-	var url string
 	if param != nil {
 		encoder := form.NewEncoder()
 		v, err := encoder.Encode(param)
 		if err != nil {
 			return err
 		}
-		url = fmt.Sprintf("https://%s/zresource/%s?%s", zdan.Address(), endpoint, v.Encode())
-	} else {
-		url = fmt.Sprintf("https://%s/zresource/%s", zdan.Address(), endpoint)
+		fullUrl = fmt.Sprintf("%s?%s", fullUrl, v.Encode())
 	}
 
-	logger.Debug("Resource Access", logger.String("method", method), logger.String("url", url))
+	logger.Debug("Resource Access", logger.String("method", method), logger.String("url", fullUrl))
 
 	// 构建请求体
 
@@ -74,7 +77,7 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 		reader = bytes.NewReader(jsonData)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, url, reader)
+	req, err := http.NewRequestWithContext(ctx, method, fullUrl, reader)
 	if err != nil {
 		return err
 	}

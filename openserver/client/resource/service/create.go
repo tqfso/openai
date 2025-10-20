@@ -38,12 +38,12 @@ type ServiceID struct {
 
 func Create(ctx context.Context, req *CreateRequest) (string, error) {
 	var resp ServiceID
-	if err := resource.Post(ctx, "v1/service/precreate", req, &resp); err != nil {
+	if err := resource.Post(ctx, "/v1/service/precreate", req, &resp); err != nil {
 		return "", err
 	}
 
 	serviceID := resp.Key
-	if err := resource.Post(ctx, "v1/service/create", resp, nil); err != nil {
+	if err := resource.Post(ctx, "/v1/service/create", resp, nil); err != nil {
 		return "", err
 	}
 
@@ -52,7 +52,7 @@ func Create(ctx context.Context, req *CreateRequest) (string, error) {
 
 func Release(ctx context.Context, id string) error {
 	reqest := ServiceID{Key: id}
-	if err := resource.Post(ctx, "v1/service/release", reqest, nil); err != nil {
+	if err := resource.Post(ctx, "/v1/service/release", reqest, nil); err != nil {
 		return err
 	}
 	return nil
