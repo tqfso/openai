@@ -13,15 +13,15 @@ type KeyInfoRequest struct {
 }
 
 type KeyInfoResponse struct {
-	ID          string          `json:"id"`
-	UserID      string          `json:"userID"`
-	WorkspaceID string          `json:"workspaceID"`
-	Description string          `json:"description,omitempty"`
-	ExpiresAt   *time.Time      `json:"expiresAt,omitempty"`
-	UsageLimits []KeyUsageLimit `json:"usageLimits,omitempty"`
+	ID          string       `json:"id"`
+	UserID      string       `json:"userID"`
+	WorkspaceID string       `json:"workspaceID"`
+	Description string       `json:"description,omitempty"`
+	ExpiresAt   *time.Time   `json:"expiresAt,omitempty"`
+	UsageLimits []UsageLimit `json:"usageLimits,omitempty"`
 }
 
-type KeyUsageLimit struct {
+type UsageLimit struct {
 	ModelName    string `json:"modelName"`
 	RequestLimit int64  `json:"requestLimit"`
 	TokenLimit   int64  `json:"tokenLimit"`

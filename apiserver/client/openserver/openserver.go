@@ -115,7 +115,7 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 	}
 
 	if !standResp.IsSuccess() {
-		return &common.Error{Code: common.InnerAccessError, Msg: standResp.Msg}
+		return &common.Error{Code: standResp.Code, Msg: standResp.Msg}
 	}
 
 	if standResp.Data != nil && resp != nil {

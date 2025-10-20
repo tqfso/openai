@@ -26,10 +26,10 @@ type KeyInfoResponse struct {
 	WorkspaceID string       `json:"workspaceID"`
 	Description string       `json:"description,omitempty"`
 	ExpiresAt   *time.Time   `json:"expiresAt,omitempty"`
-	UsageLimits []KeyUsageLimit `json:"usageLimits,omitempty"`
+	UsageLimits []UsageLimit `json:"usageLimits,omitempty"`
 }
 
-type KeyUsageLimit struct {
+type UsageLimit struct {
 	ModelName    string `json:"modelName"`
 	RequestLimit int64  `json:"requestLimit"`
 	TokenLimit   int64  `json:"tokenLimit"`
@@ -69,7 +69,7 @@ func (h *KeyInfoHandler) Handle() {
 		}
 
 		for _, usageLimit := range usageLimits {
-			response.UsageLimits = append(response.UsageLimits, KeyUsageLimit{
+			response.UsageLimits = append(response.UsageLimits, UsageLimit{
 				ModelName:    usageLimit.ModelName,
 				RequestLimit: usageLimit.RequestLimit,
 				TokenLimit:   usageLimit.TokenLimit,

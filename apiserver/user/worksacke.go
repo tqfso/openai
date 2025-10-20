@@ -1,6 +1,9 @@
 package user
 
-type Workspace struct {
-	ID string
-	
+import "apiserver/client/openserver"
+
+type Workspaces map[string]*WorkspaceInfo
+
+type WorkspaceInfo struct {
+	UsageLimits []openserver.UsageLimit
 }

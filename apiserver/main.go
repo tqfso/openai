@@ -49,6 +49,9 @@ func main() {
 }
 
 func SetRouter(r *gin.Engine) {
+
+	r.GET("/health", rest.NewHealthHandler())
+
 	SetProxyRouter(r)
 }
 
