@@ -14,13 +14,18 @@ var (
 )
 
 type Config struct {
-	Log logger.Config `yaml:"log"`
+	Log  logger.Config `yaml:"log"`
+	zdan ZdanConfig    `yaml:"zdan"`
 }
 
 func (c *Config) Check() error {
 
 	if c.Log.Level == "" {
 		c.Log = logger.DefaultConfig()
+	}
+
+	if err := c.zdan.Check(); err != nil {
+		return err
 	}
 
 	return nil
@@ -32,6 +37,10 @@ func GetConfig() *Config {
 
 func GetLog() *logger.Config {
 	return &config.Log
+}
+
+func GetZdan() *ZdanConfig {
+	return &config.zdan
 }
 
 func Load(filename string) error {
