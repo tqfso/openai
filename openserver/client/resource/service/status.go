@@ -1,6 +1,11 @@
 package service
 
-import "common/types"
+import (
+	"common/types"
+	"context"
+	"net"
+	"openserver/client/resource"
+)
 
 type StatusRequest struct {
 	Key string `form:"key"`
@@ -8,7 +13,7 @@ type StatusRequest struct {
 
 type StatusResponse struct {
 	Status         string                 `json:"status,omitempty"`
-	VpcId          uint64                 `json:"vpcId,omitempty"`
+	VpcId          string                 `json:"vpcId,omitempty"`
 	ExportPort     uint16                 `json:"exportPort,omitempty"`
 	AccessDomain   string                 `json:"accessDomain,omitempty"`
 	AccessPort     uint16                 `json:"accessPort,omitempty"`
@@ -69,4 +74,24 @@ type PathMount struct {
 	HostPath      string `json:"hostPath"`
 	ContainerPath string `json:"containerPath"`
 	ReadOnly      bool   `json:"readOnly"`
+}
+
+func (eip EipInfo) GetIP() string {
+	ip, _, err := net.ParseCIDR(eip.IP)
+	if err != nil {
+		return ""
+	}
+
+	return ip.String()
+}
+
+func GetStatus(ctx context.Context, id string) (*StatusResponse, error) {
+
+	param := ServiceID{Key: id}
+	var resp StatusResponse
+	if err := resource.Get(ctx, "v1/service/status", param, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+
 }

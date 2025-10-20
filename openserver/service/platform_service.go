@@ -19,9 +19,83 @@ func PlatformService() *PlatformServiceDefault {
 	return &PlatformServiceDefault{}
 }
 
+type ServiceTargetResponse struct {
+	ID      string
+	Err     error
+	Targets []*model.ModelServiceTarget
+}
+
 // 获取API网关负责的模型服务列表
-func (s *PlatformServiceDefault) ListByGateway(ctx context.Context, apiServiceID string) ([]*model.PlatformService, error) {
-	return repository.PlatormService().ListByGateway(ctx, apiServiceID)
+func (s *PlatformServiceDefault) ListByGateway(ctx context.Context, apiServiceID string) ([]*model.ModelServiceInfo, error) {
+	services, err := repository.PlatormService().ListByGateway(ctx, apiServiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(services) == 0 {
+		return nil, nil
+	}
+
+	var infoList []*model.ModelServiceInfo
+	for _, service := range services {
+		infoList = append(infoList, &model.ModelServiceInfo{
+			ID:        service.ID,
+			ModelName: service.ModelName,
+			Power:     service.Power,
+			Load:      service.Load,
+		})
+	}
+
+	ackCount := 0
+	channel := make(chan ServiceTargetResponse, len(services))
+	for _, service := range services {
+		go s.getServiceTargets(ctx, service.ID, channel)
+	}
+
+	for {
+		response, ok := <-channel
+		if !ok {
+			return nil, fmt.Errorf("channel error")
+		}
+
+		if response.Err != nil {
+			return nil, response.Err
+		}
+
+		for _, info := range infoList {
+			if info.ID == response.ID {
+				info.Targets = response.Targets
+				break
+			}
+		}
+
+		ackCount++
+
+		if ackCount == len(services) {
+			break
+		}
+	}
+
+	return infoList, nil
+}
+
+func (s *PlatformServiceDefault) getServiceTargets(ctx context.Context, id string, channel chan<- ServiceTargetResponse) {
+	status, err := service.GetStatus(ctx, id)
+	if err != nil {
+		channel <- ServiceTargetResponse{ID: id, Err: err}
+		return
+	}
+
+	var targets []*model.ModelServiceTarget
+	if status.EipInfo == nil {
+		for _, target := range status.Replicas {
+			targets = append(targets, &model.ModelServiceTarget{Port: 8000, IP: target.PirvateIP})
+		}
+	} else {
+		targets = append(targets, &model.ModelServiceTarget{Port: 8000, IP: status.EipInfo.GetIP()})
+	}
+
+	channel <- ServiceTargetResponse{ID: id, Targets: targets}
 }
 
 func (s *PlatformServiceDefault) Create(ctx context.Context, topoID uint64, serviceName, modelName string) (string, error) {

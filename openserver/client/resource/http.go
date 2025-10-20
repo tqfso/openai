@@ -17,14 +17,17 @@ import (
 	"github.com/go-playground/form"
 )
 
-type Response struct {
-	Data json.RawMessage `json:"data"` // 延迟解析
-	Code int             `json:"code"`
-	Msg  string          `json:"msg"`
-}
+var (
+	transport *http.Transport
+)
 
-func (r *Response) IsSuccess() bool {
-	return r.Code == 0
+func init() {
+	transport = &http.Transport{
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		MaxIdleConns:        200,
+		MaxIdleConnsPerHost: 20,
+		IdleConnTimeout:     90 * time.Second,
+	}
 }
 
 func Get(ctx context.Context, endpoint string, param, resp any) error {
@@ -40,10 +43,8 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 	zdan := config.GetZdan()
 
 	client := &http.Client{
-		Timeout: 10 * time.Second,
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Timeout:   15 * time.Second,
+		Transport: transport,
 	}
 
 	// 构建请求参数
