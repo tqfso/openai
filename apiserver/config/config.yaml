@@ -8,12 +8,7 @@ log:
   compress: true # Whether to compress old log files
   enableConsole: true # Whether to also log to console
 
-openserver:
-  host: 10.10.16.146
-  port: 8080
-
 zdan:
-  zdanHost: "192.168.3.181" # 分布式节点访问地址
-  zdanPort: 10015 # 分布式节点访问端口
+  openBaseURL: http://10.10.16.146:8080
   apiServerKey: "sk-AnxkuFzRpmZq87Uydk6RCM1fbqQkv1WE" # API网关访问密钥
   apiServiceId: "EB34212D8AB69D0D2F2B7085760ED8BDB87C8E5C" # 本服务ID
