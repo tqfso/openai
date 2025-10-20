@@ -15,7 +15,7 @@ var (
 
 type Config struct {
 	Log  logger.Config `yaml:"log"`
-	zdan ZdanConfig    `yaml:"zdan"`
+	Zdan ZdanConfig    `yaml:"zdan"`
 }
 
 func (c *Config) Check() error {
@@ -24,7 +24,7 @@ func (c *Config) Check() error {
 		c.Log = logger.DefaultConfig()
 	}
 
-	if err := c.zdan.Check(); err != nil {
+	if err := c.Zdan.Check(); err != nil {
 		return err
 	}
 
@@ -40,7 +40,7 @@ func GetLog() *logger.Config {
 }
 
 func GetZdan() *ZdanConfig {
-	return &config.zdan
+	return &config.Zdan
 }
 
 func Load(filename string) error {

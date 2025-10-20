@@ -3,7 +3,6 @@ package main
 import (
 	"apiserver/config"
 	"apiserver/middleware"
-	"apiserver/proxy"
 	"apiserver/rest"
 	"common/logger"
 	"flag"
@@ -17,7 +16,7 @@ func main() {
 	// 解析参数
 	configFileName := flag.String("config", "config/config.yaml", "config from file")
 	host := flag.String("host", "", "listen ip")
-	port := flag.Int("port", 8080, "listen port")
+	port := flag.Int("port", 8000, "listen port")
 	flag.Parse()
 
 	// 初始化配置
@@ -54,5 +53,4 @@ func SetRouter(r *gin.Engine) {
 }
 
 func SetProxyRouter(r *gin.Engine) {
-	r.Any("/*proxyPath", proxy.ReverseProxyHandler())
 }

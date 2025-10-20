@@ -42,13 +42,13 @@ func Post(ctx context.Context, endpoint string, data, resp any) error {
 func do(ctx context.Context, method, endpoint string, param, data, resp any) error {
 
 	zdan := config.GetZdan()
-	path, err := url.JoinPath(zdan.OpenBaseURL, endpoint)
+	fullUrl, err := url.JoinPath(zdan.OpenBaseURL, endpoint)
 	if err != nil {
 		return err
 	}
 
 	client := &http.Client{
-		Timeout:   10 * time.Second,
+		Timeout:   30 * time.Second,
 		Transport: transport,
 	}
 
@@ -60,10 +60,10 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 		if err != nil {
 			return err
 		}
-		path = fmt.Sprintf("%s?%s", path, v.Encode())
+		fullUrl = fmt.Sprintf("%s?%s", fullUrl, v.Encode())
 	}
 
-	logger.Debug("OpenServer Access", logger.String("method", method), logger.String("path", path))
+	logger.Debug("OpenServer Access", logger.String("method", method), logger.String("url", fullUrl))
 
 	// 构建请求体
 
@@ -76,7 +76,7 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 		reader = bytes.NewReader(jsonData)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, path, reader)
+	req, err := http.NewRequestWithContext(ctx, method, fullUrl, reader)
 	if err != nil {
 		return err
 	}
