@@ -8,7 +8,7 @@ import (
 // 查询API密钥
 
 type KeyInfoRequest struct {
-	ID             string `form:"id" binding:"required"`
+	ID             string `form:"id"`
 	WithUsageLimit bool   `form:"withUsageLimit"`
 }
 

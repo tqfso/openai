@@ -18,11 +18,11 @@ import (
 )
 
 var (
-	transport *http.Transport
+	shareTransport *http.Transport
 )
 
 func init() {
-	transport = &http.Transport{
+	shareTransport = &http.Transport{
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		MaxIdleConns:        200,
 		MaxIdleConnsPerHost: 20,
@@ -48,8 +48,8 @@ func do(ctx context.Context, method, endpoint string, param, data, resp any) err
 	}
 
 	client := &http.Client{
-		Timeout:   30 * time.Second,
-		Transport: transport,
+		Timeout:   15 * time.Second,
+		Transport: shareTransport,
 	}
 
 	// 构建请求参数

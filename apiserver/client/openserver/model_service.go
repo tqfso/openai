@@ -8,7 +8,7 @@ import (
 // 查询自己负责的模型服务
 
 type ModelServicesRequest struct {
-	ID string `form:"id" binding:"required"`
+	ID string `form:"id"`
 }
 
 type ModelServicesResponse struct {

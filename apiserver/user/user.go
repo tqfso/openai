@@ -5,18 +5,22 @@ import (
 	"common"
 	"context"
 	"sync"
+	"time"
 )
 
 var mutex sync.Mutex
 
 var (
-	apiKeys ApiKeys
+	apiKeys   ApiKeys
+	usageLogs UsageLogs
 )
 
 func init() {
 	apiKeys = make(ApiKeys)
+	usageLogs = make(UsageLogs)
 }
 
+// 查找API密钥
 func FindKey(ctx context.Context, id string) (*ApiKeyInfo, error) {
 	mutex.Lock()
 	found := apiKeys.Find(id)
@@ -46,4 +50,17 @@ func FindKey(ctx context.Context, id string) (*ApiKeyInfo, error) {
 	}
 
 	return found, nil
+}
+
+// 记录使用量
+func AddUsageLog(keyID string, usageLog *UsageLog) {
+	usageLog.Timestampt = time.Now().UnixMilli()
+	mutex.Lock()
+	defer mutex.Unlock()
+	usageLogs.Add(keyID, usageLog)
+}
+
+// 报告使用量
+func ReportUsageLog() error {
+	return nil
 }
