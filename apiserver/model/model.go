@@ -8,53 +8,58 @@ import (
 	"time"
 )
 
-type Service struct {
-	ModelName string
-	Power     uint64
-	Load      uint64
-	Targets   []*openserver.ModelServiceTarget
-}
+// 模型名称对应模型服务列表
+type Models map[string]*Services
 
-type Model struct {
-	mutex    sync.Mutex
-	Services map[string]*Service
+type Manager struct {
+	mutex sync.Mutex
+	modes Models
 }
 
 var (
-	model Model
+	manager Manager
 )
 
 func init() {
-	model = Model{Services: make(map[string]*Service)}
+	manager = Manager{modes: make(Models)}
 }
 
-func (m *Model) Refresh(services map[string]*Service) {
+func (m *Manager) Refresh(models Models) {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
-	m.Services = services
+	m.modes = models
 }
 
-func (m *Model) FindService(id string) *Service {
+func (m *Manager) SelectTarget(modelName string) *openserver.ServiceTarget {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
-	return m.Services[id]
+	found := m.modes[modelName]
+	if found == nil {
+		return nil
+	}
+
+	return found.SelectTarget()
 }
 
-// 定时加载自己负责的模型服务
+// 选择转发模型
+func SelectTarget(modelName string) *openserver.ServiceTarget {
+	return manager.SelectTarget(modelName)
+}
 
-func BackgroudLoad(ctx context.Context) {
+// 加载模型服务任务
+func LoadServicesTask(ctx context.Context) {
 
 	logger.Info("Model background task start")
 
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
-	Load(ctx)
+	LoadServices(ctx)
 
 	for {
 		select {
 		case <-ticker.C:
-			Load(ctx)
+			LoadServices(ctx)
 		case <-ctx.Done():
 			goto end
 		}
@@ -64,7 +69,7 @@ end:
 	logger.Info("Model background task final")
 }
 
-func Load(ctx context.Context) {
+func LoadServices(ctx context.Context) {
 
 	logger.Debug("Load Services")
 
@@ -74,21 +79,24 @@ func Load(ctx context.Context) {
 		return
 	}
 
-	services := make(map[string]*Service)
+	models := make(Models)
 	for _, s := range resp {
 		service := &Service{
-			ModelName: s.ModelName,
-			Power:     s.Power,
-			Load:      s.Load,
-			Targets:   s.Targets,
+			ID:      s.ID,
+			Power:   s.Power,
+			Load:    s.Load,
+			Targets: s.Targets,
 		}
 
-		services[s.ID] = service
+		found := models[s.ModelName]
+		if found == nil {
+			found = &Services{}
+			models[s.ModelName] = found
+		}
+
+		found.Services = append(found.Services, service)
+
 	}
 
-	model.Refresh(services)
-}
-
-func FindService(id string) *Service {
-	return model.FindService(id)
+	manager.Refresh(models)
 }

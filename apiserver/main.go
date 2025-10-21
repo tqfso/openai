@@ -40,7 +40,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// 加载模型服务
-	go model.BackgroudLoad(ctx)
+	go model.LoadServicesTask(ctx)
 
 	// 启动HTTP服务
 	go RunServer(*host, *port)
