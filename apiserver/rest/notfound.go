@@ -2,6 +2,7 @@ package rest
 
 import (
 	"common"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,5 +20,6 @@ func NewNotFoundHandler() gin.HandlerFunc {
 }
 
 func (h *NotFoundHandler) Handle() {
+	h.SetStatusCode(http.StatusNotFound)
 	h.SetError(common.HandlerNotFound, "not found handler")
 }

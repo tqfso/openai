@@ -4,6 +4,7 @@ import (
 	"apiserver/config"
 	"apiserver/middleware"
 	"apiserver/model"
+	"apiserver/proxy"
 	"apiserver/rest"
 	"common/logger"
 	"context"
@@ -81,4 +82,5 @@ func SetRouter(r *gin.Engine) {
 }
 
 func SetProxyRouter(r *gin.Engine) {
+	r.Any("/v1/chat/completions", proxy.NewChatCompletionsHandler())
 }
