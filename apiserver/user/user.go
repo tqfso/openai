@@ -8,9 +8,8 @@ import (
 	"time"
 )
 
-var mutex sync.Mutex
-
 var (
+	mutex     sync.Mutex
 	apiKeys   ApiKeys
 	usageLogs UsageLogs
 )
@@ -62,5 +61,10 @@ func AddUsageLog(keyID string, usageLog *UsageLog) {
 
 // 报告使用量
 func ReportUsageLog() error {
+	mutex.Lock()
+	// report := usageLogs
+	usageLogs = make(UsageLogs)
+	mutex.Unlock()
+
 	return nil
 }

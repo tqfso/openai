@@ -12,11 +12,11 @@ type ModelServicesRequest struct {
 }
 
 type ModelServicesResponse struct {
-	ID        string               `json:"id"`
-	ModelName string               `json:"modelName"`
-	Power     uint64               `json:"power"`
-	Load      uint64               `json:"load"`
-	Targets   []ModelServiceTarget `json:"targets"`
+	ID        string                `json:"id"`
+	ModelName string                `json:"modelName"`
+	Power     uint64                 `json:"power"`
+	Load      uint64                 `json:"load"`
+	Targets   []*ModelServiceTarget `json:"targets"`
 }
 
 type ModelServiceTarget struct {

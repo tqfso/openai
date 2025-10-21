@@ -3,10 +3,16 @@ package main
 import (
 	"apiserver/config"
 	"apiserver/middleware"
+	"apiserver/model"
 	"apiserver/rest"
 	"common/logger"
+	"context"
 	"flag"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +37,27 @@ func main() {
 	logger.Info("Application started", logger.Any("config", config.GetConfig()))
 	gin.DefaultWriter = logger.GetWriter()
 
-	// HTTP服务
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// 加载模型服务
+	go model.BackgroudLoad(ctx)
+
+	// 启动HTTP服务
+	go RunServer(*host, *port)
+
+	// 监听系统信号（SIGINT, SIGTERM）
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	// 取消后台任务
+	cancel()
+	time.Sleep(time.Second)
+
+	logger.Info("Application stoped")
+}
+
+func RunServer(host string, port int) {
 
 	r := gin.New()
 	r.Use(middleware.GinLogger(), middleware.GinRecovery())
@@ -43,13 +69,12 @@ func main() {
 	r.NoRoute(rest.NewNotFoundHandler())
 
 	// 启动服务
-	serverAddress := fmt.Sprintf("%s:%d", *host, *port)
+	serverAddress := fmt.Sprintf("%s:%d", host, port)
 	r.Run(serverAddress)
 
 }
 
 func SetRouter(r *gin.Engine) {
-
 	r.GET("/health", rest.NewHealthHandler())
 
 	SetProxyRouter(r)

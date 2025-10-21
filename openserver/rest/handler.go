@@ -95,23 +95,3 @@ func (h *Handler[T]) GetFromUser() string {
 func (h *Handler[T]) GetContext() context.Context {
 	return h.Context.Request.Context()
 }
-
-func (h *Handler[T]) checkPanic() {
-
-	e := recover()
-	if e == nil {
-		return
-	}
-
-	err, ok := e.(error)
-	if !ok {
-		h.SetError(common.HandleError, "An unkown exception occurs")
-		return
-	}
-
-	if commError, ok := e.(*common.Error); ok {
-		h.SetError(commError.Code, commError.Msg)
-	} else {
-		h.SetError(common.HandleError, err.Error())
-	}
-}
