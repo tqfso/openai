@@ -51,7 +51,7 @@ func LoadServicesTask(ctx context.Context) {
 
 	logger.Info("Model background task start")
 
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
 
 	LoadServices(ctx)

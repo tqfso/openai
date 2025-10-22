@@ -4,6 +4,7 @@ import (
 	"apiserver/model"
 	"apiserver/user"
 	"bytes"
+	"common/logger"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -24,17 +25,18 @@ var sharedTransport = &http.Transport{
 }
 
 type TaskInterface interface {
-	OnBefore() error                   // 前置处理
-	OnAfter(resp *http.Response) error // 后置处理
+	OnBefore() error                   // 转发请求前处理
+	OnAfter(resp *http.Response) error // 转发响应前处理
 }
 
 type Handler struct {
-	GinContext *gin.Context
-	Task       TaskInterface
-	ModelName  string
-	ApiKey     string
-	ApiKeyInfo *user.ApiKeyInfo
-	TargetURL  *url.URL
+	GinContext  *gin.Context
+	Task        TaskInterface
+	RequestBody map[string]any
+	ModelName   string
+	ApiKey      string
+	ApiKeyInfo  *user.ApiKeyInfo
+	TargetURL   *url.URL
 }
 
 func (h *Handler) SetTaskHandler(handler TaskInterface) {
@@ -77,6 +79,9 @@ func (h *Handler) OnRequest(c *gin.Context) {
 		return
 	}
 
+	// 重新设置请求体
+	h.setbackBody()
+
 	proxy := &httputil.ReverseProxy{
 		Transport: sharedTransport,
 		Director: func(req *http.Request) {
@@ -90,9 +95,7 @@ func (h *Handler) OnRequest(c *gin.Context) {
 			return h.Task.OnAfter(resp)
 		},
 		ErrorHandler: func(rw http.ResponseWriter, req *http.Request, err error) {
-			if err == nil {
-				return
-			}
+			logger.Error("ReverseProxy", logger.String("HOST", req.Host), logger.String("URI", req.RequestURI), logger.Err(err))
 			rw.WriteHeader(http.StatusBadGateway)
 			json.NewEncoder(rw).Encode(NewResponseError(http.StatusBadGateway, err.Error()))
 		},
@@ -141,24 +144,29 @@ func (h *Handler) checkModelName() *ResponseError {
 	}
 
 	// 解析JSON
-	var reqBody map[string]interface{}
-	if err := json.Unmarshal(data, &reqBody); err != nil {
+	if err := json.Unmarshal(data, &h.RequestBody); err != nil {
 		return NewResponseError(http.StatusBadRequest, "Invalid request body")
 	}
 
 	// 从请求体中获取模型名称
-	if modelName, ok := reqBody["model"].(string); ok {
+	if modelName, ok := h.RequestBody["model"].(string); ok {
 		h.ModelName = modelName
 	} else {
 		return NewResponseError(http.StatusBadRequest, "Model name is required")
 	}
 
-	// 重新设置请求体
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(data))
-
 	return nil
 }
 
+// 设置转发请求体
+func (h *Handler) setbackBody() {
+	c := h.GinContext
+	data, _ := json.Marshal(h.RequestBody)
+	c.Request.ContentLength = int64(len(data))
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(data))
+}
+
+// 选择转发目标
 func (h *Handler) selectTarget() *ResponseError {
 	target := model.SelectTarget(h.ModelName)
 	if target == nil {

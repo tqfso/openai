@@ -42,6 +42,27 @@ func NewChatCompletionsHandler() gin.HandlerFunc {
 	}
 }
 
+// 流式请求必须返回使用量
+func (h *ChatCompletionsHandler) OnBefore() error {
+	streamField, exist := h.RequestBody["stream"]
+	if !exist {
+		return nil
+	}
+
+	isStream := streamField.(bool)
+	if !isStream {
+		return nil
+	}
+
+	streamOptions := map[string]any{
+		"include_usage": true,
+	}
+	h.RequestBody["stream_options"] = streamOptions
+
+	return nil
+}
+
+// 统计使用量
 func (h *ChatCompletionsHandler) OnAfter(resp *http.Response) error {
 
 	isStream := strings.Contains(resp.Header.Get("Content-Type"), "text/event-stream")
@@ -66,18 +87,10 @@ func (h *ChatCompletionsHandler) OnAfter(resp *http.Response) error {
 				buf.WriteString("\n")
 
 				if strings.HasPrefix(line, "data: ") {
-					// 尝试解析并记录最后一个包含usage的chunk
 					if strings.Contains(line, `"usage"`) {
 						chunk := line[6:] // 去掉 "data: " 前缀
 						if err := json.Unmarshal([]byte(chunk), &lastChunk); err == nil {
-							if lastChunk.Usage != nil {
-								logger.Info("Stream Usage",
-									logger.String("Model", h.ModelName),
-									logger.Int("Prompt", lastChunk.Usage.PromptTokens),
-									logger.Int("Completion", lastChunk.Usage.CompletionTokens),
-									logger.Int("TotalTokens", lastChunk.Usage.TotalTokens),
-								)
-							}
+							h.HandleUsage(lastChunk.Usage)
 						}
 					}
 				}
@@ -106,14 +119,7 @@ func (h *ChatCompletionsHandler) OnAfter(resp *http.Response) error {
 		// 解析使用量信息但不修改原始数据
 		var completionResponse ChatCompletionResponse
 		if err := json.Unmarshal(data, &completionResponse); err == nil {
-			if completionResponse.Usage != nil {
-				logger.Info("Usage",
-					logger.String("Model", h.ModelName),
-					logger.Int("Prompt", completionResponse.Usage.PromptTokens),
-					logger.Int("Completion", completionResponse.Usage.CompletionTokens),
-					logger.Int("TotalTokens", completionResponse.Usage.TotalTokens),
-				)
-			}
+			h.HandleUsage(completionResponse.Usage)
 		}
 
 		// 使用原始数据重新设置响应体
@@ -121,4 +127,16 @@ func (h *ChatCompletionsHandler) OnAfter(resp *http.Response) error {
 	}
 
 	return nil
+}
+
+func (h *ChatCompletionsHandler) HandleUsage(usage *ChatCompletionUsage) {
+	if usage == nil {
+		return
+	}
+
+	logger.Info("Usage",
+		logger.String("Model", h.ModelName),
+		logger.Int("Prompt", usage.PromptTokens),
+		logger.Int("Completion", usage.CompletionTokens),
+		logger.Int("TotalTokens", usage.TotalTokens))
 }
