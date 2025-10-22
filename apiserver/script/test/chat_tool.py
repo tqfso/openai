@@ -108,6 +108,9 @@ if hasattr(response_message, 'tool_calls') and response_message.tool_calls:
         # 实时打印每一段内容
         final_answer = ""
         for chunk in final_response:
+            if len(chunk.choices) == 0:
+                continue
+            
             delta = chunk.choices[0].delta
             if delta.content:
                 print(delta.content, end='', flush=True)
