@@ -36,27 +36,57 @@ psql -U postgres -- 以管理员账号进入命令交互
 
 ## 模型
 
-### 下载
+### Qwen/Qwen3-1.7B
 
-- downloade Qwen/Qwen3-1.7B from modescope
+- download from modescope
 
 ```sh
-
 export MODELSCOPE_CACHE="/zol"
-
 modelscope download --model Qwen/Qwen3-1.7B
-
 cd /zol/models
 rm Qwen3-1.7B
 mv Qwen3-1___7B Qwen3-1.7B
 
 ```
 
-### 部署
+- convert to Harmony format
 
-- deploy Qwen/Qwen3-1.7B using Tesla T4
+```sh
+export GIT_SSL_NO_VERIFY=0
+git clone --recursive https://github.com/mlc-ai/mlc-llm.git
+```
+
+- deploy using Tesla T4
   
 ```sh
-docker run --gpus all --shm-size=1g -p 8000:8000 -v /zol/models:/vllm-workspace --name qwen3-1.7b vllm/vllm-openai:latest --model Qwen/Qwen3-1.7B --enable-auto-tool-choice --tool-call-parser hermes --dtype float32 --trust-remote-code --max-model-len 2800 --gpu-memory-utilization 0.95
+docker run --rm --gpus all --shm-size=1g \
+	-p 8000:8000 \
+	-v /zol/models:/vllm-workspace \
+	-e VLLM_USE_FLASHINFER_SAMPLER=0 \
+	--name qwen3-1.7b \
+	vllm/vllm-openai:0.11.0 \
+	--model Qwen/Qwen3-1.7B \
+	--enable-auto-tool-choice \
+	--tool-call-parser hermes \
+	--dtype float32 \
+	--max-model-len 2800 \
+	--gpu-memory-utilization 0.80
 
+
+```
+### Qwen/Qwen2.5-VL-3B-Instruct-AWQ
+
+- deploy sing Tesla T4
+
+```sh
+docker run --rm --gpus all --shm-size=1g \
+	-p 8000:8000 \
+	-v /zol/models:/vllm-workspace \
+	-e VLLM_USE_FLASHINFER_SAMPLER=0 \
+	--name qwen25-vl \
+	vllm/vllm-openai:0.11.0 \
+	--model Qwen/Qwen2.5-VL-3B-Instruct-AWQ \
+	--mm-processor-kwargs '{"max_pixels": 262144}' \
+	--max-model-len 2048 \
+	--gpu-memory-utilization 0.80
 ```

@@ -13,9 +13,12 @@ messages = [
     {"role": "user", "content": "今天的天气怎么样，共有哪几种描述?"}
 ]
 
-response = client.responses.create(
+response = client.chat.completions.create(
     model=model_name,
-    input=messages
+    messages=messages,
+    max_tokens=1024,
+    temperature=0.2,
+    top_p=0.95,
 )
 
-print(response.output_text)
+print(response.choices[0].message.content)

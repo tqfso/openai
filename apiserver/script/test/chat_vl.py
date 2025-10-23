@@ -3,31 +3,33 @@ from config import BASE_URL
 
 # 测试图片分析
 
-model_name = "Qwen/Qwen2.5-VL-7B-Instruct-AWQ"
+model_name = "Qwen/Qwen2.5-VL-3B-Instruct-AWQ"
 
 client = OpenAI(
     base_url=BASE_URL,
     api_key="EMPTY"
 )
 
-response = client.responses.create(
+response = client.chat.completions.create(
     model=model_name,
-    input=[
+    messages=[
         {
             "role": "user",
             "content": [
                 {
-                    "type": "input_text", 
-                    "text": "图片里有什么?"
+                    "type": "text",
+                    "text": "这张图片里有没有女孩，简单回答有或没有"
                 },
-
                 {
-                    "type": "input_image",
-                    "image_url": "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg",
-                },
-            ],
+                    "type": "image_url",
+                    "image_url": {
+                        "url": "https://goal-xuxiayu.oss-cn-shanghai.aliyuncs.com/zdan/demo.jpeg"
+                    }
+                }
+            ]
         }
-    ],
+        
+    ]
 )
 
-print(response.output_text)
+print(response.choices[0].message.content)
