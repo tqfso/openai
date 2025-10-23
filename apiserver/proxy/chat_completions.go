@@ -136,7 +136,7 @@ func (h *ChatCompletionsHandler) HandleUsage(usage *ChatCompletionUsage) {
 
 	logger.Info("Usage",
 		logger.String("Model", h.ModelName),
-		logger.Int("Prompt", usage.PromptTokens),
-		logger.Int("Completion", usage.CompletionTokens),
+		logger.Int("PromptTokens", usage.PromptTokens),
+		logger.Int("CompletionTokens", usage.CompletionTokens),
 		logger.Int("TotalTokens", usage.TotalTokens))
 }

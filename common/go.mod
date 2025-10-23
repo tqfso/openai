@@ -9,5 +9,5 @@ require (
 
 require (
 	go.uber.org/multierr v1.10.0 // indirect
-	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/inf.v0 v0.9.1
 )

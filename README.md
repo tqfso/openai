@@ -74,19 +74,3 @@ docker run --rm --gpus all --shm-size=1g \
 
 
 ```
-### Qwen/Qwen2.5-VL-3B-Instruct-AWQ
-
-- deploy sing Tesla T4
-
-```sh
-docker run --rm --gpus all --shm-size=1g \
-	-p 8000:8000 \
-	-v /zol/models:/vllm-workspace \
-	-e VLLM_USE_FLASHINFER_SAMPLER=0 \
-	--name qwen25-vl \
-	vllm/vllm-openai:0.11.0 \
-	--model Qwen/Qwen2.5-VL-3B-Instruct-AWQ \
-	--mm-processor-kwargs '{"max_pixels": 262144}' \
-	--max-model-len 2048 \
-	--gpu-memory-utilization 0.80
-```
