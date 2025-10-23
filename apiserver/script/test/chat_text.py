@@ -13,12 +13,24 @@ messages = [
     {"role": "user", "content": "今天的天气怎么样，共有哪几种描述?"}
 ]
 
+print("用户提问:", messages[1]["content"])
+
 response = client.chat.completions.create(
     model=model_name,
     messages=messages,
     max_tokens=1024,
     temperature=0.2,
     top_p=0.95,
+    stream=True,
 )
 
-print(response.choices[0].message.content)
+for chunk in response:
+    if len(chunk.choices) == 0:
+        continue
+    
+    delta = chunk.choices[0].delta
+    if delta.content:
+        print(delta.content, end='', flush=True)
+        
+
+# print(response.choices[0].message.content)

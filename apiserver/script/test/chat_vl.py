@@ -10,26 +10,27 @@ client = OpenAI(
     api_key="EMPTY"
 )
 
+messages=[
+    {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "这是啥？"
+            },
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": "https://goal-xuxiayu.oss-cn-shanghai.aliyuncs.com/zdan/demo.jpeg"
+                }
+            }
+        ]
+    }    
+]
+
 response = client.chat.completions.create(
     model=model_name,
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": "这张图片里有没有女孩，简单回答有或没有"
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": "https://goal-xuxiayu.oss-cn-shanghai.aliyuncs.com/zdan/demo.jpeg"
-                    }
-                }
-            ]
-        }
-        
-    ]
+    messages=messages
 )
 
 print(response.choices[0].message.content)
