@@ -34,8 +34,7 @@ CREATE TABLE infer_engines (
 );
 
 INSERT INTO infer_engines(name, framework, image) VALUES 
-('vllm-openai', 'Vllm', 'reasoning/vllm/vllm-openai:latest'),
-('zdan-qwenvl', 'Pytorch', 'reasoning/zdan/qwenvl:latest');
+('vllm-openai', 'Vllm', 'reasoning/vllm/zdan-openai:latest');
 
 /* 模型类型表 */
 DROP TABLE IF EXISTS model_classes;

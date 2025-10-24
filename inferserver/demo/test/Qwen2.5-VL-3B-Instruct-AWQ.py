@@ -35,10 +35,7 @@ messages = [
     {
         "role": "user",
         "content": [
-            {
-                "type": "image",
-                "image": image,
-            },
+            {"type": "image", "image": image},
             {"type": "text", "text": "描述一下这张图片"},
         ],
     }
@@ -48,6 +45,10 @@ messages = [
 text = processor.apply_chat_template(
     messages, tokenize=False, add_generation_prompt=True
 )
+
+# 统计输入token数
+input_tokens = len(processor.tokenizer(text)["input_ids"])
+
 image_inputs, video_inputs = process_vision_info(messages)
 inputs = processor(
     text=[text],
@@ -66,4 +67,8 @@ generated_ids_trimmed = [
 output_text = processor.batch_decode(
     generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
 )
+
+# 统计输出token数
+output_tokens = len(processor.tokenizer(output_text[0])["input_ids"]) if output_text else 0
+print(input_tokens, output_tokens)
 print(output_text)

@@ -8,11 +8,7 @@ from fastapi import Depends
 from pydantic import BaseModel
 from typing import List, Union, Literal, Optional, Dict
 
-# ---- FastAPI 路由和处理 ----
-
 router = APIRouter()
-
-# ---- 定义 OpenAI 风格请求结构 ----
 
 class OpenAIImageURL(BaseModel):
     url: str
@@ -49,30 +45,10 @@ class OpenAIChatResponse(BaseModel):
 def get_model(request: Request):
     return request.app.state.model
 
-# ---- 转换 OpenAI -> 本地格式 ----
 def convert_openai_to_internal(messages: List[OpenAIMessage]) -> List[Dict]:
-    new_messages = []
-    for msg in messages:
-        contents = []
-        if isinstance(msg.content, str):
-            contents.append({"type": "text", "text": msg.content})
-        else:
-            for item in msg.content:
-                if item.type == "text":
-                    contents.append({"type": "text", "text": item.text})
-                elif item.type == "image_url":
-                    img_url = item.image_url.url
-                    image = Image.open(BytesIO(requests.get(img_url).content)).convert("RGB")
-                    image = image.resize((448, 448))  # 推荐尺寸，防OOM
+    pass
 
-                    contents.append({"type": "image", "image": image})
-        new_messages.append({
-            "role": msg.role,
-            "content": contents
-        })
-    return new_messages
-
-@router.post("/chat/completions", response_model=OpenAIChatResponse)
+@router.post("/v1/chat/completions", response_model=OpenAIChatResponse)
 def chat_completions(req: OpenAIChatRequest, request: Request):
 
     model = get_model(request)
