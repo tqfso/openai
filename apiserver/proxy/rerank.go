@@ -11,19 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type EmbeddingsHandler struct {
+type RerankHandler struct {
 	Handler
 }
 
-func NewEmbeddingsHandler() gin.HandlerFunc {
+func NewRerankHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		h := &EmbeddingsHandler{}
+		h := &RerankHandler{}
 		h.SetTaskHandler(h)
 		h.OnRequest(c)
 	}
 }
 
-func (h *EmbeddingsHandler) OnAfter(resp *http.Response) error {
+func (h *RerankHandler) OnAfter(resp *http.Response) error {
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return NewResponseError(http.StatusInternalServerError, fmt.Sprintf("Failed to read response body: %v", err))
@@ -39,10 +39,10 @@ func (h *EmbeddingsHandler) OnAfter(resp *http.Response) error {
 	return nil
 }
 
-func (h *EmbeddingsHandler) HandleUsage(usage *ChatCompletionUsage) {
+func (h *RerankHandler) HandleUsage(usage *ChatCompletionUsage) {
 	if usage == nil {
 		return
 	}
 
-	logger.Info("Embed Usage", logger.String("Model", h.ModelName), logger.Int("PromptTokens", usage.PromptTokens), logger.Int("TotalTokens", usage.TotalTokens))
+	logger.Info("Rerank Usage", logger.String("Model", h.ModelName), logger.Int("TotalTokens", usage.TotalTokens))
 }
