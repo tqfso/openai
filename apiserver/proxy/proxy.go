@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -144,8 +145,38 @@ func (h *Handler) checkApiKey() *ResponseError {
 
 func (h *Handler) checkModelName() *ResponseError {
 	c := h.GinContext
+	contentType := c.ContentType()
 
-	// 获取原始请求数据
+	// 处理 form-data 格式
+	if strings.Contains(contentType, "multipart/form-data") {
+		// 解析 multipart form，32MB 限制
+		err := c.Request.ParseMultipartForm(32 << 20)
+		if err != nil {
+			return NewResponseError(http.StatusBadRequest, "Failed to parse form data")
+		}
+
+		// 获取model字段
+		modelName := c.Request.FormValue("model")
+		if modelName == "" {
+			return NewResponseError(http.StatusBadRequest, "Model name is required")
+		}
+		h.ModelName = modelName
+		h.RequestBody = make(map[string]any)
+		h.RequestBody["model"] = modelName
+
+		// 获取其他字段		
+		if form := c.Request.MultipartForm; form != nil {
+			for key, values := range form.Value {
+				if len(values) > 0 && key != "model" {
+					h.RequestBody[key] = values[0]
+				}
+			}
+			h.RequestBody["_files"] = form.File
+		}
+		return nil
+	}
+
+	// 处理 JSON 格式
 	data, err := c.GetRawData()
 	if err != nil {
 		return NewResponseError(http.StatusBadRequest, "Failed to read request body")
@@ -169,7 +200,49 @@ func (h *Handler) checkModelName() *ResponseError {
 // 设置转发请求体
 func (h *Handler) setbackBody() {
 	c := h.GinContext
+	contentType := c.ContentType()
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		// 重新构建 multipart 请求
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		// 写入普通字段
+		for key, value := range h.RequestBody {
+			if key != "_files" && value != nil {
+				writer.WriteField(key, fmt.Sprintf("%v", value))
+			}
+		}
+
+		// 写入文件
+		if files, ok := h.RequestBody["_files"].(map[string][]*multipart.FileHeader); ok {
+			for key, fileHeaders := range files {
+				for _, fileHeader := range fileHeaders {
+					file, err := fileHeader.Open()
+					if err != nil {
+						continue
+					}
+					part, err := writer.CreateFormFile(key, fileHeader.Filename)
+					if err != nil {
+						file.Close()
+						continue
+					}
+					io.Copy(part, file)
+					file.Close()
+				}
+			}
+		}
+
+		writer.Close()
+		c.Request.Header.Set("Content-Type", writer.FormDataContentType())
+		c.Request.ContentLength = int64(body.Len())
+		c.Request.Body = io.NopCloser(body)
+		return
+	}
+
+	// 对于 JSON 格式，重新设置请求体
 	data, _ := json.Marshal(h.RequestBody)
+	c.Request.Header.Set("Content-Type", "application/json")
 	c.Request.ContentLength = int64(len(data))
 	c.Request.Body = io.NopCloser(bytes.NewBuffer(data))
 }
