@@ -82,6 +82,10 @@ func SetRouter(r *gin.Engine) {
 }
 
 func SetProxyRouter(r *gin.Engine) {
+
+	r.POST("/tokenize", proxy.NewDefaultHandler())
+	r.POST("/classify", proxy.NewClassifyHandler())
+
 	r.POST("/v1/chat/completions", proxy.NewChatCompletionsHandler())
 	r.POST("/v1/embeddings", proxy.NewEmbeddingsHandler())
 	r.POST("/v1/rerank", proxy.NewRerankHandler())

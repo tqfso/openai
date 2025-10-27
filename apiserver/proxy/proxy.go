@@ -39,6 +39,14 @@ type Handler struct {
 	TargetURL   *url.URL
 }
 
+func NewDefaultHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := &Handler{}
+		h.SetTaskHandler(h)
+		h.OnRequest(c)
+	}
+}
+
 func (h *Handler) SetTaskHandler(handler TaskInterface) {
 	h.Task = handler
 }
