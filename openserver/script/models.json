@@ -1,0 +1,378 @@
+{
+  "data": {
+    "totalCount": 8,
+    "pageIndex": 1,
+    "pageSize": 10,
+    "models": [
+      {
+        "name": "iic/CosyVoice2-0.5B",
+        "provider": 2,
+        "maxContextLength": 0,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "cosyvoice",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models",
+                  "containerPath": "/workspace/hub",
+                  "readOnly": false
+                }
+              ],
+              "env": [
+                {
+                  "name": "MODELSCOPE_CACHE",
+                  "value": "/workspace"
+                }
+              ],
+              "args": [
+                "--model_dir",
+                "/workspace/hub/iic/CosyVoice2-0.5B",
+                "--port",
+                "8000"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        },
+        "description": "语音合成模型",
+        "status": "enabled",
+        "updateAt": "2025-10-29T18:10:11.503597+08:00",
+        "createAt": "2025-10-29T18:10:11.503597+08:00"
+      },
+      {
+        "name": "mistralai/Voxtral-Mini-3B-2507",
+        "provider": 1,
+        "maxContextLength": 32768,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/mistralai/Voxtral-Mini-3B-2507",
+                  "containerPath": "/vllm-workspace/mistralai/Voxtral-Mini-3B-2507",
+                  "readOnly": true
+                }
+              ],
+              "env": [
+                {
+                  "name": "HF_HUB_OFFLINE",
+                  "value": "1"
+                }
+              ],
+              "args": [
+                "--model",
+                "mistralai/Voxtral-Mini-3B-2507",
+                "--tokenizer_mode",
+                "mistral",
+                "--config_format",
+                "mistral",
+                "--load_format",
+                "mistral"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1,
+                  "args": [
+                    "--max-model-len",
+                    "2048"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "description": "语音识别翻译模型",
+        "status": "enabled",
+        "updateAt": "2025-10-27T16:52:37.952527+08:00",
+        "createAt": "2025-10-27T16:52:37.952527+08:00"
+      },
+      {
+        "name": "jason9693/Qwen2.5-1.5B-apeach",
+        "provider": 1,
+        "maxContextLength": 32768,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/jason9693/Qwen2.5-1.5B-apeach",
+                  "containerPath": "/vllm-workspace/jason9693/Qwen2.5-1.5B-apeach",
+                  "readOnly": true
+                }
+              ],
+              "args": [
+                "--model",
+                "jason9693/Qwen2.5-1.5B-apeach"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        },
+        "description": "文本分类模型",
+        "status": "enabled",
+        "updateAt": "2025-10-24T18:28:13.407723+08:00",
+        "createAt": "2025-10-24T18:28:13.407723+08:00"
+      },
+      {
+        "name": "Qwen/Qwen2.5-Omni-3B",
+        "provider": 1,
+        "classes": [
+          1,
+          4,
+          7,
+          9
+        ],
+        "maxContextLength": 32768,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/Qwen/Qwen2.5-Omni-3B",
+                  "containerPath": "/vllm-workspace/Qwen/Qwen2.5-Omni-3B",
+                  "readOnly": true
+                }
+              ],
+              "args": [
+                "--model",
+                "Qwen/Qwen2.5-Omni-3B"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        },
+        "description": "全模态模型",
+        "status": "enabled",
+        "updateAt": "2025-10-24T14:15:15.624155+08:00",
+        "createAt": "2025-10-24T14:15:15.624155+08:00"
+      },
+      {
+        "name": "Qwen/Qwen3-Reranker-4B",
+        "provider": 1,
+        "classes": [
+          3
+        ],
+        "maxContextLength": 32768,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/Qwen/Qwen3-Reranker-4B",
+                  "containerPath": "/vllm-workspace/Qwen/Qwen3-Reranker-4B",
+                  "readOnly": true
+                }
+              ],
+              "env": [
+                {
+                  "name": "VLLM_USE_FLASHINFER_SAMPLER",
+                  "value": "0"
+                }
+              ],
+              "args": [
+                "--model",
+                "Qwen/Qwen3-Reranker-4B",
+                "--hf_overrides",
+                "{\"architectures\": [\"Qwen3ForSequenceClassification\"],\"classifier_from_token\": [\"no\", \"yes\"],\"is_original_qwen3_reranker\": true}"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        },
+        "description": "重排序模型",
+        "status": "enabled",
+        "updateAt": "2025-10-24T10:41:33.854426+08:00",
+        "createAt": "2025-10-24T10:41:33.854426+08:00"
+      },
+      {
+        "name": "Qwen/Qwen3-Embedding-4B",
+        "provider": 1,
+        "classes": [
+          2
+        ],
+        "maxContextLength": 32768,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/Qwen/Qwen3-Embedding-4B",
+                  "containerPath": "/vllm-workspace/Qwen/Qwen3-Embedding-4B",
+                  "readOnly": true
+                }
+              ],
+              "env": [
+                {
+                  "name": "VLLM_USE_FLASHINFER_SAMPLER",
+                  "value": "0"
+                }
+              ],
+              "args": [
+                "--model",
+                "Qwen/Qwen3-Embedding-4B",
+                "--task",
+                "embedding"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        },
+        "description": "向量嵌入模型",
+        "status": "enabled",
+        "updateAt": "2025-10-23T17:07:13.535829+08:00",
+        "createAt": "2025-10-23T17:07:13.535829+08:00"
+      },
+      {
+        "name": "Qwen/Qwen2.5-VL-3B-Instruct-AWQ",
+        "provider": 1,
+        "classes": [
+          1,
+          9
+        ],
+        "maxContextLength": 2048,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/Qwen/Qwen2.5-VL-3B-Instruct-AWQ",
+                  "containerPath": "/vllm-workspace/Qwen/Qwen2.5-VL-3B-Instruct-AWQ",
+                  "readOnly": true
+                }
+              ],
+              "env": [
+                {
+                  "name": "VLLM_USE_FLASHINFER_SAMPLER",
+                  "value": "0"
+                }
+              ],
+              "args": [
+                "--model",
+                "Qwen/Qwen2.5-VL-3B-Instruct-AWQ",
+                "--enable-auto-tool-choice",
+                "--tool-call-parser",
+                "hermes",
+                "--max-model-len",
+                "2048",
+                "--gpu-memory-utilization",
+                "0.80"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        },
+        "description": "通义实验室出品的多模态小模型",
+        "status": "enabled",
+        "updateAt": "2025-10-23T14:57:23.232543+08:00",
+        "createAt": "2025-10-23T14:57:23.232543+08:00"
+      },
+      {
+        "name": "Qwen/Qwen3-1.7B",
+        "provider": 1,
+        "classes": [
+          1,
+          10
+        ],
+        "abilities": [
+          1,
+          3,
+          4
+        ],
+        "maxContextLength": 2048,
+        "deployInfo": {
+          "inferInfos": [
+            {
+              "name": "vllm-openai",
+              "mounts": [
+                {
+                  "name": "models",
+                  "hostPath": "/mnt/cephfs/openai/models/Qwen/Qwen3-1.7B",
+                  "containerPath": "/vllm-workspace/Qwen/Qwen3-1.7B",
+                  "readOnly": true
+                }
+              ],
+              "env": [
+                {
+                  "name": "VLLM_USE_FLASHINFER_SAMPLER",
+                  "value": "0"
+                }
+              ],
+              "args": [
+                "--model",
+                "Qwen/Qwen3-1.7B",
+                "--enable-auto-tool-choice",
+                "--tool-call-parser",
+                "hermes",
+                "--max-model-len",
+                "2800",
+                "--gpu-memory-utilization",
+                "0.80"
+              ],
+              "suitableGpus": [
+                {
+                  "name": "Tesla T4",
+                  "count": 1,
+                  "args": [
+                    "--dtype",
+                    "float32"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "description": "通义实验室出品的最新小模型",
+        "status": "enabled",
+        "updateAt": "2025-10-23T10:00:03.896482+08:00",
+        "createAt": "2025-10-23T10:00:03.896482+08:00"
+      }
+    ]
+  },
+  "code": 0,
+  "msg": "success"
+}
