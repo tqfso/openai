@@ -1,11 +1,12 @@
 from openai import OpenAI
 from config import BASE_URL
+from config import API_KEY
 
 model_name = "Qwen/Qwen3-1.7B"
 
 client = OpenAI(
     base_url=BASE_URL,
-    api_key="EMPTY"
+    api_key=API_KEY,
 )
 
 messages = [

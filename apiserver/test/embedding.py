@@ -1,5 +1,6 @@
 from openai import OpenAI
 from config import BASE_URL
+from config import API_KEY
 
 import numpy as np
 
@@ -7,7 +8,7 @@ model_name = "Qwen/Qwen3-Embedding-4B"
 
 client = OpenAI(
     base_url=BASE_URL,
-    api_key="EMPTY"
+    api_key=API_KEY
 )
 
 # ===== 输入三个句子 =====

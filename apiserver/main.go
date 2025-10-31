@@ -93,4 +93,6 @@ func SetProxyRouter(r *gin.Engine) {
 	r.POST("/v1/audio/transcriptions", proxy.NewDefaultHandler())
 	r.POST("/v1/audio/translations", proxy.NewDefaultHandler())
 	r.POST("/v1/audio/speech", proxy.NewDefaultHandler())
+
+	r.POST("/v1/images/generations", proxy.NewDefaultHandler())
 }

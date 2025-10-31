@@ -1,5 +1,6 @@
 from openai import OpenAI
 from config import BASE_URL
+from config import API_KEY
 
 # 测试图片分析
 
@@ -7,7 +8,7 @@ model_name = "Qwen/Qwen2.5-VL-3B-Instruct-AWQ"
 
 client = OpenAI(
     base_url=BASE_URL,
-    api_key="EMPTY"
+    api_key=API_KEY
 )
 
 messages=[
